@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="508fe56f-9ac2-4212-b673-b55f427c472e" version="1">
+  <Properties>
+    <Name>Demographics</Name>
+    <Description>Adds real population figure 1000*population^2,8</Description>
+    <CustomProperties xmlns="http://schemas.microsoft.com/developer/msbuild/2003"></CustomProperties>
+    <Teaser>Adds real population figure 1000*population^2,8</Teaser>
+    <Authors>Benji</Authors>
+  </Properties>
+  <FrontEndActions>
+    <ImportFiles id="ImportUI">
+      <File>UI/Demographics Panel.xml</File>
+      <File>UI/Panel Text.xml</File>
+    </ImportFiles>
+  </FrontEndActions>
+  <InGameActions>
+    <AddGameplayScripts id="StartInit">
+      <File>Scripts/Load.lua</File>
+    </AddGameplayScripts>
+    <ImportFiles id="ImportFile">
+      <File>Scripts/CitySupport.lua</File>
+      <File>Scripts/Civ6Common.lua</File>
+      <File>Scripts/InstanceManager.lua</File>
+      <File>Scripts/SupportFunctions.lua</File>
+      <File>Scripts/TabSupport.lua</File>
+      <File>Scripts/Demographics Panel.lua</File>
+      <File>UI/Demographics Panel.xml</File>
+      <File>UI/Panel Text.xml</File>
+    </ImportFiles>
+    <UserInterface id="Demographics_UI">
+      <Properties>
+        <Context>InGame</Context>
+      </Properties>
+      <Items>
+        <File>UI/Demographics Panel.xml</File>
+        <File>UI/Panel Text.xml</File>
+      </Items>
+    </UserInterface>
+  </InGameActions>
+  <Files>
+    <File>Scripts/CitySupport.lua</File>
+    <File>Scripts/Civ6Common.lua</File>
+    <File>Scripts/Demographics Panel.lua</File>
+    <File>Scripts/InstanceManager.lua</File>
+    <File>Scripts/Load.lua</File>
+    <File>Scripts/Reminder.txt</File>
+    <File>Scripts/SupportFunctions.lua</File>
+    <File>Scripts/TabSupport.lua</File>
+    <File>UI/Demographics Panel.xml</File>
+    <File>UI/Panel Text.xml</File>
+  </Files>
+</Mod>

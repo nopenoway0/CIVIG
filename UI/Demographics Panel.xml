@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dialog -->
+<!-- Author: Benji -->
+<!-- DateCreated: 10/27/2017 1:37:49 AM -->
+<Context>
+	<Grid Size="400,270" Anchor="C,C" Style="Grid9DetailFive140" ID="D_BOX">
+		<Label ID="message" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String=""/>
+		<GridButton ID="OK" Size="140,36" Anchor="C,B" Offset="0,50" Style="BaseButton">
+			<Label Anchor="C,C" String="" FontStyle="Shadow"/>
+		</GridButton>
+	</Grid>
+</Context>
