@@ -1,12 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Dialog -->
 <!-- Author: Benji -->
-<!-- DateCreated: 10/27/2017 1:37:49 AM -->
+<!-- DateCreated: 10/27/2017 1:37:49 AM <Label String="Demographic"></Label>-->
 <Context>
-	<Grid Size="400,270" Anchor="C,C" Style="Grid9DetailFive140" ID="D_BOX">
-		<Label ID="message" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String=""/>
-		<GridButton ID="OK" Size="140,36" Anchor="C,B" Offset="0,50" Style="BaseButton">
-			<Label Anchor="C,C" String="" FontStyle="Shadow"/>
+	<Grid Size="500,300" Anchor="C,C" ID="D_BOX" ConsumeMouse="1" Style="UnitFrame">
+		<Label String="Demographics Panel" Anchor="C,T" Offset="0,10"/>
+		<Stack Anchor="C,B" Offset="0,80" StackGrowth="Right" Padding="25">
+			
+			<Stack StackGrowth="Down" Padding="20">
+				<Label ID="title" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="Demographic"/>
+				<Label ID="population" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="Population"/>
+				<Label ID="crop_yield" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="Crop Yield"/>
+				<Label ID="land" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="Land"/>
+				<Label ID="gnp" Anchor="C,C" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="GNP"/>
+			</Stack>
+
+			<Stack StackGrowth="Down" Padding="20">
+				<Label String="Rank"/>
+				<Label ID="pop_rank" String="0"/>
+				<Label ID="crop_rank" String="0" />
+				<Label ID="dnp_rank" String="0"/>
+				<Label ID="land_rank" String="0" />
+			</Stack>
+
+
+			<Stack StackGrowth="Down" Padding="20">
+				<Label String="Value"/>
+				<Label ID="pop_value" String="0"/>
+				<Label ID="crop_value" String="0"/>
+				<Label ID="gnp_value" String="0"/>
+				<Label ID="land_value" String="0"/>
+			</Stack>
+
+			<Stack StackGrowth="Down" Padding="20">
+				<Label String="Best"/>
+				<Label ID="pop_best" String="0"/>
+				<Label ID="crop_best" String="0" />
+				<Label ID="gnp_best" String="0" />
+				<Label ID="land_best" String="0" />
+
+			</Stack>
+
+			<Stack StackGrowth="Down" Padding="20">
+				<Label String="Average"/>
+				<Label ID="pop_average" String="0"/>
+				<Label ID="crop_average" String="0" />
+				<Label ID="gnp_average" String="0" />
+				<Label ID="land_average" String="0" />
+			</Stack>
+
+			<Stack StackGrowth="Down" Padding="20">
+				<Label String="Worst"/>
+				<Label ID="pop_worst" String="0"/>
+				<Label ID="crop_worst" String="0" />
+				<Label ID="gnp_worst" String="0"/>
+				<Label ID="land_worst" String="0"/>
+			</Stack>		
+		</Stack>
+		<GridButton ID="OK" Size="90,35" Anchor="C,B" Style="BaseButton" Offset="0,10">
+			<Label String="OK" Anchor="C,C" FontStyle="Shadow"/>
 		</GridButton>
 	</Grid>
 </Context>
