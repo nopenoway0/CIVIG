@@ -68,8 +68,13 @@
 				<Label ID="goods_worst" String="0"/>
 			</Stack>		
 		</Stack>
-		<GridButton ID="OK" Size="90,35" Anchor="C,B" Style="BaseButton" Offset="0,10">
-			<Label String="OK" Anchor="C,C" FontStyle="Shadow"/>
-		</GridButton>
+		<Stack StackGrowth="Right" Padding="20" Anchor="C,B">
+			<GridButton ID="OK" Size="90,35" Anchor="C,B" Style="BaseButton" Offset="0,10">
+				<Label String="OK" Anchor="C,C" FontStyle="Shadow"/>
+			</GridButton>
+			<GridButton ID="Close" Size="90,35" Anchor="C,B" Style="BaseButton" Offset="0,10">
+				<Label String="Close" Anchor="C,C" FontStyle="Shadow"/>
+			</GridButton>
+		</Stack>
 	</Grid>
 </Context>
