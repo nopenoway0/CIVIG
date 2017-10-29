@@ -18,7 +18,7 @@
 				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
 				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
 				</Stack>
-				<Stack Anchor="C,C" Offset="0,0" StackGrowth="Right" Padding="50">
+				<Stack Anchor="C,C" Offset="0,0" StackGrowth="Right" Padding="44">
 					<Stack StackGrowth="Down" Padding="42">
 						<Label ID="title" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Demographic"/>
 						<Label ID="population" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Population"/>
