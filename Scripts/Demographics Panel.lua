@@ -11,7 +11,8 @@ local human_id = nil
 local function IsValidPlayer(player)
 	if player == nil then return false end
 	if player:IsAlive() ~= true then return false end
-	if player:GetID() < 0 then return false end
+	--if player:GetID() < 0 then return false end
+	if player:IsMajor() == false then return false end 
 	return true
 end
 
@@ -42,7 +43,7 @@ end
 --[[Get total population of player's empire.
 	return total population]]
 local function GetPop(player)
-	if(player == nil) then return 0 end
+	if IsValidPlayer(player) == false then return 0 end
 	local cities = player:GetCities()
 	if(cities == nil) then return 0 end
 	local population = 0
@@ -86,7 +87,7 @@ local function GetDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
 		if p then
-			if(p ~= nil) then
+			if IsValidPlayer(p) then
 				local pop = GetPop(p)
 				pop = math.ceil(pop)
 				if p:GetID() >= 0 and p:IsAlive() then
@@ -104,10 +105,8 @@ local function GetMilitaryMight()
 	local m_might = {}
 	for k, p in pairs(Players) do
 		if p then
-			if p ~= nil then
-				if p:GetID() >= 0 and p:IsAlive() then
-					m_might[p:GetID()] = GetMight(p)
-				end
+			if IsValidPlayer(p) then
+				m_might[p:GetID()] = GetMight(p)
 			end
 		end
 	end
@@ -118,9 +117,7 @@ local function GetLandAll()
 	local land = {}
 	for x, p in pairs(Players) do
 		if IsValidPlayer(p) then
-			if p:GetID() >= 0 then
-				land[p:GetID()] = GetLand(p)
-			end
+			land[p:GetID()] = GetLand(p)
 		end
 	end
 	return land
@@ -141,10 +138,8 @@ local function GetCropYieldAll()
 	local demographics = {}
 	for k, p in pairs(Players) do
 		if p then
-			if(p ~= nil) then
-				if p:GetID() >= 0 and p:IsAlive() then
-					demographics[p:GetID()] = GetCropYield(p)
-				end
+			if IsValidPlayer(p) then
+				demographics[p:GetID()] = GetCropYield(p)
 			end
 		end
 	end
@@ -163,9 +158,7 @@ local function GetGNPAll()
 	local gnp = {}
 	for x, p in pairs(Players) do
 		if IsValidPlayer(p) then
-			if p:GetID() >= 0 then
-				gnp[p:GetID()] = GetGNP(p)
-			end
+			gnp[p:GetID()] = GetGNP(p)
 		end
 	end
 	return gnp
@@ -255,9 +248,7 @@ local function UpdateField(field)
 		Controls.crop_average:SetText(tostring(average))
 	else 
 		return 0
-	end
-	--else if(field == "crop_yield") return 0
-	
+	end	
 end
 
 --[[Update panel by rewriting to all fields]]
@@ -270,12 +261,15 @@ function UpdatePanel()
 	UpdateField("crop_yield")
 end
 
-function OnOK()
-	UpdatePanel()
+function ClosePanel()
+	ContextPtr:SetHide(true)
 end
 
-function ClosePanel()
-	Controls.D_BOX:SetHide(true)
+local context_store = nil
+function OpenPanel()
+	-- add sound effects here
+	context_store:SetHide(false)
+	UpdatePanel()
 end
 
 -- change in case of multiplayers or hotseat
@@ -285,9 +279,12 @@ function Init()
 			if j:IsHuman() then human_id = j:GetID() break end
 		end
 	end
+	context_store = ContextPtr
 	UpdatePanel()
-	Controls.OK:RegisterCallback(Mouse.eLClick, OnOK)
 	Controls.Close:RegisterCallback(Mouse.eLClick, ClosePanel)
+	context_store:SetHide(true)
+	local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
+	top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
 end
 
 Events.LoadComplete.Add(Init)
