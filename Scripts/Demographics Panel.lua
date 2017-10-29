@@ -126,8 +126,29 @@ local function GetLandAll()
 	return land
 end
 
+
 local function GetCropYield(player)
 	-- get crop yield of player
+	local total_yield = 0
+	if IsValidPlayer(player) == false then return 0 end
+	for x, c in player:GetCities():Members() do
+		total_yield = total_yield + c:GetYield()
+	end
+	return total_yield
+end
+
+local function GetCropYieldAll()
+	local demographics = {}
+	for k, p in pairs(Players) do
+		if p then
+			if(p ~= nil) then
+				if p:GetID() >= 0 and p:IsAlive() then
+					demographics[p:GetID()] = GetCropYield(p)
+				end
+			end
+		end
+	end
+	return demographics
 end
 
 local function GetGNP(player)
@@ -150,29 +171,26 @@ local function GetGNPAll()
 	return gnp
 end
 
-local count = 0;
-local players = 30;
-
---[[Create demographics through GetDemographics function
-	Iterate through table and print player id and total population]]
-function UpdatePopulation()
-	local demographics = nil
-	if count >= players then
-				-- Temporary way to trigger refresh
-				demographics = GetDemographics()
-				for n, p in pairs(demographics) do
-					if(p) then print(n, ": ", p) end
-				end
-				count = 0
-	else count = count + 1 end
-end
---[[
-local function SetFields(field)
+local function UpdateField(field)
 	-- place holder to reduce redundant code use flags
 	local demographics = nil
 	if(field == "population") then 
+		demographics = GetDemographics()
+	elseif(field == "gnp") then 
+		demographics = GetGNPAll()
+	elseif(field == "military") then 
+		demographics = GetMilitaryMight()
+	elseif(field == "goods") then 
+		demographics = GetGoodsDemographics()
+	elseif(field == "land") then 
+		demographics = GetLandAll()
+	elseif(field == "crop_yield") then 
+		demographics = GetCropYieldAll()
+	else 
+		return 0
+	end
+
 	print("getting demographics")
-	local demographics = GetDemographics()
 	local rank = 1
 	local average = 0
 	local worst = 0
@@ -193,222 +211,71 @@ local function SetFields(field)
 		end
 	end
 
+	average = math.ceil(average / count)
+	worst = math.ceil(worst)
+	best = math.ceil(best)
+	local value = math.ceil(demographics[human_id])
 	-- Set all population fields
-	print("setting population value")
-	Controls.pop_value:SetText(tostring(demographics[human_id]))
-
-	print("setting rank: ", rank)
-	Controls.pop_rank:SetText(tostring(rank))
-
-	print("setting worst: ", worst)
-	Controls.pop_worst:SetText(tostring(worst))
-
-	print("setting best: ", best)
-	Controls.pop_best:SetText(tostring(best))
-
-	average = math.ceil(average / count)
-	print("setting average: ", average)
-	Controls.pop_average:SetText(tostring(average))
-end]]
-
---[[Add custom function to fire when PlayerTurnStarted event fires]]
-function UpdatePanel()
-	print("getting demographics")
-	local demographics = GetDemographics()
-	print("creating string")
-	local rank = 1
-	local average = 0
-	local worst = 0
-	local best = 0
-	local count = 0
-
-	-- get and set population value
-	local tmp = demographics[human_id]
-	best = tmp
-	worst = tmp
-	for i, j in pairs(demographics) do
-		if i >= 0 then
-			if j > tmp then rank = rank + 1 end
-			if j < worst then worst = j end
-			if j > best then best = j end
-			average = average + j
-			count = count + 1
-		end
-	end
-
-	-- Set all population fields
-	print("setting population value")
-	Controls.pop_value:SetText(tostring(demographics[human_id]))
-
-	print("setting rank: ", rank)
-	Controls.pop_rank:SetText(tostring(rank))
-
-	print("setting worst: ", worst)
-	Controls.pop_worst:SetText(tostring(worst))
-
-	print("setting best: ", best)
-	Controls.pop_best:SetText(tostring(best))
-
-	average = math.ceil(average / count)
-	print("setting average: ", average)
-	Controls.pop_average:SetText(tostring(average))
-
-	demographics = GetMilitaryMight()
-	tmp = demographics[human_id]
-	average = 0
-	count = 0
-	best = tmp
-	worst = tmp
-	rank = 1
-	for i, j in pairs(demographics) do
-		if i >= 0 then
-			if j > tmp then rank = rank + 1 end
-			if j < worst then worst = j end
-			if j > best then best = j end
-			average = average + j
-			count = count + 1
-		end
-	end
-
-	print("setting military values")
-	Controls.mil_value:SetText(tostring(math.ceil(demographics[human_id])))
-
-	print("setting rank: ", rank)
-	Controls.mil_rank:SetText(tostring(rank))
-
-	worst = math.ceil(worst)
-	print("setting worst: ", worst)
-	Controls.mil_worst:SetText(tostring(worst))
-	
-	best = math.ceil(best)
-	print("setting best: ", best)
-	Controls.mil_best:SetText(tostring(best))
-
-	average = math.ceil(average / count)
-	print("setting average: ", average)
-	Controls.mil_average:SetText(tostring(average))
-
-	demographics = GetLandAll()
-	tmp = demographics[human_id]
-	best = tmp
-	worst = tmp
-	rank = 1
-	average = 0
-	count = 0
-	for i, j in pairs(demographics) do
-		if i >= 0 then
-			print(j)
-			if j > tmp then rank = rank + 1 end
-			if j < worst then worst = j end
-			if j > best then best = j end
-			average = average + j
-			count = count + 1
-		end
-	end
-
-	print("setting land values")
-	Controls.land_value:SetText(tostring(math.ceil(tmp)))
-
-	print("setting rank: ", rank)
-	Controls.land_rank:SetText(tostring(rank))
-
-	worst = math.ceil(worst)
-	print("setting worst: ", worst)
-	Controls.land_worst:SetText(tostring(worst))
-	
-	best = math.ceil(best)
-	print("setting best: ", best)
-	Controls.land_best:SetText(tostring(best))
-
-	if count ~= 0 then
-		average = math.ceil(average / count)
-		print("setting average: ", average)
-		Controls.land_average:SetText(tostring(average))
-	end
-
-	demographics = GetGoodsDemographics()
-	tmp = demographics[human_id]
-	best = tmp
-	worst = tmp
-	rank = 1
-	average = 0
-	count = 0
-	for i, j in pairs(demographics) do
-		if i >= 0 then
-			print(j)
-			if j > tmp then rank = rank + 1 end
-			if j < worst then worst = j end
-			if j > best then best = j end
-			average = average + j
-			count = count + 1
-		end
-	end
-
-	print("setting goods values")
-	Controls.goods_value:SetText(tostring(math.ceil(tmp)))
-
-	print("setting rank: ", rank)
-	Controls.goods_rank:SetText(tostring(rank))
-
-	worst = math.ceil(worst)
-	print("setting worst: ", worst)
-	Controls.goods_worst:SetText(tostring(worst))
-	
-	best = math.ceil(best)
-	print("setting best: ", best)
-	Controls.goods_best:SetText(tostring(best))
-
-	if count ~= 0 then
-		average = math.ceil(average / count)
-		print("setting average: ", average)
+	print("updating ", field, " fields")
+	if(field == "population") then 
+		Controls.pop_value:SetText(tostring(value))
+		Controls.pop_rank:SetText(tostring(rank))
+		Controls.pop_worst:SetText(tostring(worst))
+		Controls.pop_best:SetText(tostring(best))
+		Controls.pop_average:SetText(tostring(average))
+	elseif(field == "gnp") then 
+		Controls.gnp_value:SetText(tostring(value))
+		Controls.gnp_rank:SetText(tostring(rank))
+		Controls.gnp_worst:SetText(tostring(worst))
+		Controls.gnp_best:SetText(tostring(best))
+		Controls.gnp_average:SetText(tostring(average))
+	elseif(field == "military") then 
+		Controls.mil_value:SetText(tostring(value))
+		Controls.mil_rank:SetText(tostring(rank))
+		Controls.mil_worst:SetText(tostring(worst))
+		Controls.mil_best:SetText(tostring(best))
+		Controls.mil_average:SetText(tostring(average))
+	elseif(field == "goods") then 
+		Controls.goods_value:SetText(tostring(value))
+		Controls.goods_rank:SetText(tostring(rank))
+		Controls.goods_worst:SetText(tostring(worst))
+		Controls.goods_best:SetText(tostring(best))
 		Controls.goods_average:SetText(tostring(average))
+	elseif(field == "land") then 
+		Controls.land_value:SetText(tostring(value))
+		Controls.land_rank:SetText(tostring(rank))
+		Controls.land_worst:SetText(tostring(worst))
+		Controls.land_best:SetText(tostring(best))
+		Controls.land_average:SetText(tostring(average))
+	elseif(field == "crop_yield") then
+		Controls.crop_value:SetText(tostring(demographics[human_id]))
+		Controls.crop_rank:SetText(tostring(rank))
+		Controls.crop_worst:SetText(tostring(worst))
+		Controls.crop_best:SetText(tostring(best))
+		Controls.crop_average:SetText(tostring(average))
+	else 
+		return 0
 	end
-
-	demographics = GetGNPAll()
-	tmp = demographics[human_id]
-	best = tmp
-	worst = tmp
-	rank = 1
-	average = 0
-	count = 0
-	for i, j in pairs(demographics) do
-		if i >= 0 then
-			print(j)
-			if j > tmp then rank = rank + 1 end
-			if j < worst then worst = j end
-			if j > best then best = j end
-			average = average + j
-			count = count + 1
-		end
-	end
-
-	print("setting dnp values")
-	Controls.gnp_value:SetText(tostring(math.ceil(tmp)))
-
-	print("setting rank: ", rank)
-	Controls.gnp_rank:SetText(tostring(rank))
-
-	worst = math.ceil(worst)
-	print("setting worst: ", worst)
-	Controls.gnp_worst:SetText(tostring(worst))
+	--else if(field == "crop_yield") return 0
 	
-	best = math.ceil(best)
-	print("setting best: ", best)
-	Controls.gnp_best:SetText(tostring(best))
-
-	if count ~= 0 then
-		average = math.ceil(average / count)
-		print("setting average: ", average)
-		Controls.gnp:SetText(tostring(average))
-	end
-
 end
 
---GameEvents.PlayerTurnStarted.Add(PlayerTurnStarted)
+--[[Update panel by rewriting to all fields]]
+function UpdatePanel()
+	UpdateField("population")
+	UpdateField("gnp")
+	UpdateField("military")
+	UpdateField("goods")
+	UpdateField("land")
+	UpdateField("crop_yield")
+end
 
 function OnOK()
-	--Controls.D_BOX:SetHide(true) --Change to destroy?
 	UpdatePanel()
+end
+
+function ClosePanel()
+	Controls.D_BOX:SetHide(true)
 end
 
 -- change in case of multiplayers or hotseat
@@ -418,8 +285,9 @@ function Init()
 			if j:IsHuman() then human_id = j:GetID() break end
 		end
 	end
-	--UpdatePanel()
+	UpdatePanel()
 	Controls.OK:RegisterCallback(Mouse.eLClick, OnOK)
+	Controls.Close:RegisterCallback(Mouse.eLClick, ClosePanel)
 end
 
 Events.LoadComplete.Add(Init)
