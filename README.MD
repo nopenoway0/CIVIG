@@ -10,10 +10,14 @@ The Demographics panel contains information about "real" population, GNP, crop y
 To access the panel simple click the new **Demographics** button next to the reports button:
 ![button_location](https://user-images.githubusercontent.com/13967957/32148170-01d58926-bcb0-11e7-80ff-e8d7edd78f7e.jpg)
 
+## Installation
+* [Download the mod Here](https://github.com/nopenoway0/CIVIG/releases)
+* Extract the CIVIG folder to the Mods directory - typically at: ```C:\Users\Your Name\Documents\my games\Sid Meier's Civilization VI\Mods```. The result should be ```C:\Users\Your Name\Documents\my games\Sid Meier's Civilization VI\Mods\CIVIG```
+
 ## Compatibility 
 CIVIG is dependant on TopPanel.xml so any modification that messes with this file will most likely cause errors.  Modifying the mod to work with other files should be straight forward as the only difference in the TopPanel.xml is the **ViewDemographics** button.
 
-## Thank You:
+## Thank You
 * Gedemon for his extremely helpful Civ 6 Objects and functions [spreadsheet](https://forums.civfanatics.com/threads/lua-objects.601146/).
 * William Howard for his [helpful tutorial](https://forums.civfanatics.com/threads/user-interface-components.461552/) on UI editing of Civ V, much of which still applies to Civ VI
 
@@ -21,7 +25,7 @@ CIVIG is dependant on TopPanel.xml so any modification that messes with this fil
 * Add symbol of nation to **best** and **worst** fields
 * Revise scripts - they're extremely ugly
 * Put in thank yous to Gedemon for his excellent spreadsheet of Civ 6 objects and their functions
-and William Howard for this tutorial into UI editing of Civ V
+and William Howard for his tutorial into UI editing of Civ V
 * Literacy?
 * Approval Rate?
 * Graphs?
