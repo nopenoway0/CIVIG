@@ -39,7 +39,6 @@ local function GetMight(player)
 	return might
 end
 
--- ADD IS EVER ALIVE TO PLAYER BEFORE FUNCITON CALL
 --[[Get total population of player's empire.
 	return total population]]
 local function GetPop(player)
@@ -319,6 +318,7 @@ end
 
 -- change in case of multiplayers or hotseat
 function Init()
+	print("load completed start initizialization")
 	for i, j in pairs(Players) do
 		if j then
 			if j:IsHuman() then human_id = j:GetID() break end
@@ -332,24 +332,4 @@ function Init()
 	top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
 end
 
-Events.LoadComplete.Add(Init)
-
---[[Add custom fire to show test window when GameplaySetActivePlayer
-	event fires]]
-local bIsRegistered = false
-function SetActivePlayer(iPlayer, iPrevPlayer)
-  if (not bIsRegistered) then
-    local control = ContextPtr
-	if control ~= nil then 
-		control:SetHide(false)
-	else print("NO CONTROL STILL") end
-  end
-end
-
-GameEvents.GameplaySetActivePlayer.Add(SetActivePlayer)
-
-function print_this(T)
-	for i,j in pairs(T) do
-		print("i: ", i)
-	end
-end
+Events.LoadGameViewStateDone.Add(Init)
