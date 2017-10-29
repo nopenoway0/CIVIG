@@ -164,9 +164,39 @@ local function GetGNPAll()
 	return gnp
 end
 
+local function GetSuffix(input)
+	local billion = 1000000000
+	local million = 1000000
+	local thousand = 1000
+	local suffix = ""
+	local result = {}
+	if input > billion then
+		suffix = "B"
+		input = input / billion
+	elseif input > million then
+		suffix = "M"
+		input = input / million
+	elseif input > thousand then
+		suffix = "K"
+		input = input / thousand
+	else
+		suffix = ""
+	end
+
+	input = input * 100
+	input = math.ceil(input)
+	input = input / 100
+
+	print("after round: ", input)
+	result[0] = input
+	result[1] = suffix
+	return result
+end
+
 local function UpdateField(field)
 	-- place holder to reduce redundant code use flags
 	local demographics = nil
+	local suffix = ""
 	if(field == "population") then 
 		demographics = GetDemographics()
 	elseif(field == "gnp") then 
@@ -189,7 +219,7 @@ local function UpdateField(field)
 	local worst = 0
 	local best = 0
 	local count = 0
-
+	local result = nil
 	-- get and set population value
 	local tmp = demographics[human_id]
 	best = tmp
@@ -204,48 +234,63 @@ local function UpdateField(field)
 		end
 	end
 
-	average = math.ceil(average / count)
-	worst = math.ceil(worst)
-	best = math.ceil(best)
-	local value = math.ceil(demographics[human_id])
+	average = math.floor(average / count)
+	worst = math.floor(worst)
+	best = math.floor(best)
+	local value = math.floor(demographics[human_id])
 	-- Set all population fields
 	print("updating ", field, " fields")
 	if(field == "population") then 
-		Controls.pop_value:SetText(tostring(value))
-		Controls.pop_rank:SetText(tostring(rank))
-		Controls.pop_worst:SetText(tostring(worst))
-		Controls.pop_best:SetText(tostring(best))
-		Controls.pop_average:SetText(tostring(average))
+		result = GetSuffix(value)
+		Controls.pop_value:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(rank)
+		Controls.pop_rank:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(worst)
+		Controls.pop_worst:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(best)
+		Controls.pop_best:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(average)
+		Controls.pop_average:SetText(tostring(result[0]) .. result[1])
 	elseif(field == "gnp") then 
-		Controls.gnp_value:SetText(tostring(value))
-		Controls.gnp_rank:SetText(tostring(rank))
-		Controls.gnp_worst:SetText(tostring(worst))
-		Controls.gnp_best:SetText(tostring(best))
-		Controls.gnp_average:SetText(tostring(average))
+		Controls.gnp_value:SetText(tostring(value) .. suffix)
+		Controls.gnp_rank:SetText(tostring(rank) .. suffix)
+		Controls.gnp_worst:SetText(tostring(worst) .. suffix)
+		Controls.gnp_best:SetText(tostring(best) .. suffix)
+		Controls.gnp_average:SetText(tostring(average) .. suffix)
 	elseif(field == "military") then 
-		Controls.mil_value:SetText(tostring(value))
-		Controls.mil_rank:SetText(tostring(rank))
-		Controls.mil_worst:SetText(tostring(worst))
-		Controls.mil_best:SetText(tostring(best))
-		Controls.mil_average:SetText(tostring(average))
+		result = GetSuffix(value)
+		Controls.mil_value:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(rank)
+		Controls.mil_rank:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(worst)
+		Controls.mil_worst:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(best)
+		Controls.mil_best:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(average)
+		Controls.mil_average:SetText(tostring(result[0]) .. result[1])
 	elseif(field == "goods") then 
-		Controls.goods_value:SetText(tostring(value))
-		Controls.goods_rank:SetText(tostring(rank))
-		Controls.goods_worst:SetText(tostring(worst))
-		Controls.goods_best:SetText(tostring(best))
-		Controls.goods_average:SetText(tostring(average))
+		Controls.goods_value:SetText(tostring(value) .. suffix)
+		Controls.goods_rank:SetText(tostring(rank) .. suffix)
+		Controls.goods_worst:SetText(tostring(worst) .. suffix)
+		Controls.goods_best:SetText(tostring(best) .. suffix)
+		Controls.goods_average:SetText(tostring(average) .. suffix)
 	elseif(field == "land") then 
-		Controls.land_value:SetText(tostring(value))
-		Controls.land_rank:SetText(tostring(rank))
-		Controls.land_worst:SetText(tostring(worst))
-		Controls.land_best:SetText(tostring(best))
-		Controls.land_average:SetText(tostring(average))
+		result = GetSuffix(value)
+		Controls.land_value:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(rank)
+		Controls.land_rank:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(worst)
+		Controls.land_worst:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(best)
+		Controls.land_best:SetText(tostring(result[0]) .. result[1])
+		result = GetSuffix(average)
+		Controls.land_average:SetText(tostring(result[0]) .. result[1])
 	elseif(field == "crop_yield") then
-		Controls.crop_value:SetText(tostring(demographics[human_id]))
-		Controls.crop_rank:SetText(tostring(rank))
-		Controls.crop_worst:SetText(tostring(worst))
-		Controls.crop_best:SetText(tostring(best))
-		Controls.crop_average:SetText(tostring(average))
+		Controls.crop_value:SetText(tostring(demographics[human_id]) .. suffix)
+		Controls.crop_rank:SetText(tostring(rank) .. suffix)
+		Controls.crop_worst:SetText(tostring(worst) .. suffix)
+		Controls.crop_best:SetText(tostring(best) .. suffix)
+		Controls.crop_average:SetText(tostring(average) .. suffix)
 	else 
 		return 0
 	end	
