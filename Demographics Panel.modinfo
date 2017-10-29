@@ -10,7 +10,7 @@
   <FrontEndActions>
     <ImportFiles id="ImportUI">
       <File>UI/Demographics Panel.xml</File>
-      <File>UI/Panel Text.xml</File>
+      <File>UI/TopPanel.xml</File>
     </ImportFiles>
   </FrontEndActions>
   <InGameActions>
@@ -25,7 +25,7 @@
       <File>Scripts/TabSupport.lua</File>
       <File>Scripts/Demographics Panel.lua</File>
       <File>UI/Demographics Panel.xml</File>
-      <File>UI/Panel Text.xml</File>
+      <File>UI/TopPanel.xml</File>
     </ImportFiles>
     <UserInterface id="Demographics_UI">
       <Properties>
@@ -33,7 +33,7 @@
       </Properties>
       <Items>
         <File>UI/Demographics Panel.xml</File>
-        <File>UI/Panel Text.xml</File>
+        <!--<File>UI/TopPanel.xml</File>-->
       </Items>
     </UserInterface>
   </InGameActions>
@@ -46,7 +46,7 @@
     <File>Scripts/Reminder.txt</File>
     <File>Scripts/SupportFunctions.lua</File>
     <File>Scripts/TabSupport.lua</File>
-    <File>UI/Demographics Panel.xml</File>
-    <File>UI/Panel Text.xml</File>
+   <File>UI/Demographics Panel.xml</File>
+    <File>UI/TopPanel.xml</File>
   </Files>
 </Mod>
