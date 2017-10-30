@@ -5,6 +5,19 @@
 
 local human_id = nil
 
+
+function SetIcon(control, id)
+	local icon = "ICON_"
+	if type(id) == "number" then
+		local cTop_player = PlayerConfigurations[id]
+		local icon = icon .. cTop_player:GetCivilizationTypeName()
+		control:SetIcon(icon)
+	else
+		icon = icon .. "CIVILIZATION_UNKNOWN"
+	end
+	control:SetIcon(icon)
+end
+
 local function IsValidPlayer(player)
 	if player == nil then return false end
 	if player:IsAlive() ~= true then return false end
@@ -216,6 +229,13 @@ local function UpdateField(field)
 	local best = 0
 	local count = 0
 	local result = nil
+	local civ_id = {}
+	local control_best = nil
+	local control_worst = nil
+	
+	-- set all fields in civ id to human by default
+	civ_id["best"] = human_id
+	civ_id["worst"] = human_id
 	-- get and set population value
 	local tmp = demographics[human_id]
 	best = tmp
@@ -223,8 +243,14 @@ local function UpdateField(field)
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if j > tmp then rank = rank + 1 end
-			if j < worst then worst = j end
-			if j > best then best = j end
+			if j < worst then 
+				worst = j
+				civ_id["worst"] = i
+			end
+			if j > best then 
+				best = j
+				civ_id["best"] = i
+			end
 			average = average + j
 			count = count + 1
 		end
@@ -243,16 +269,25 @@ local function UpdateField(field)
 		Controls.pop_rank:SetText(tostring(result[0]) .. result[1])
 		result = GetSuffix(worst)
 		Controls.pop_worst:SetText(tostring(result[0]) .. result[1])
+		SetIcon(Controls.pop_worst_icon, civ_id["worst"])
 		result = GetSuffix(best)
 		Controls.pop_best:SetText(tostring(result[0]) .. result[1])
 		result = GetSuffix(average)
 		Controls.pop_average:SetText(tostring(result[0]) .. result[1])
+
+		control_best = Controls.pop_best_icon
+		control_worst = Controls.pop_worst_icon
+
 	elseif(field == "gnp") then 
 		Controls.gnp_value:SetText(tostring(value) .. suffix)
 		Controls.gnp_rank:SetText(tostring(rank) .. suffix)
 		Controls.gnp_worst:SetText(tostring(worst) .. suffix)
 		Controls.gnp_best:SetText(tostring(best) .. suffix)
 		Controls.gnp_average:SetText(tostring(average) .. suffix)
+
+		control_best = Controls.gnp_best_icon
+		control_worst = Controls.gnp_worst_icon
+
 	elseif(field == "military") then 
 		result = GetSuffix(value)
 		Controls.mil_value:SetText(tostring(result[0]) .. result[1])
@@ -264,12 +299,20 @@ local function UpdateField(field)
 		Controls.mil_best:SetText(tostring(result[0]) .. result[1])
 		result = GetSuffix(average)
 		Controls.mil_average:SetText(tostring(result[0]) .. result[1])
+
+		control_best = Controls.mil_best_icon
+		control_worst = Controls.mil_worst_icon
+
 	elseif(field == "goods") then 
 		Controls.goods_value:SetText(tostring(value) .. suffix)
 		Controls.goods_rank:SetText(tostring(rank) .. suffix)
 		Controls.goods_worst:SetText(tostring(worst) .. suffix)
 		Controls.goods_best:SetText(tostring(best) .. suffix)
 		Controls.goods_average:SetText(tostring(average) .. suffix)
+
+		control_best = Controls.goods_best_icon
+		control_worst = Controls.goods_worst_icon
+
 	elseif(field == "land") then 
 		result = GetSuffix(value)
 		Controls.land_value:SetText(tostring(result[0]) .. result[1])
@@ -281,15 +324,32 @@ local function UpdateField(field)
 		Controls.land_best:SetText(tostring(result[0]) .. result[1])
 		result = GetSuffix(average)
 		Controls.land_average:SetText(tostring(result[0]) .. result[1])
+
+		control_best = Controls.land_best_icon
+		control_worst = Controls.land_worst_icon
+
 	elseif(field == "crop_yield") then
 		Controls.crop_value:SetText(tostring(demographics[human_id]) .. suffix)
 		Controls.crop_rank:SetText(tostring(rank) .. suffix)
 		Controls.crop_worst:SetText(tostring(worst) .. suffix)
 		Controls.crop_best:SetText(tostring(best) .. suffix)
 		Controls.crop_average:SetText(tostring(average) .. suffix)
+
+		control_best = Controls.crop_best_icon
+		control_worst = Controls.crop_worst_icon
+
 	else 
 		return 0
 	end	
+
+
+	if worst == best then
+		SetIcon(control_best, "none")
+		SetIcon(control_worst, "none")
+	else
+		SetIcon(control_best, civ_id["best"])
+		SetIcon(control_worst, civ_id["worst"])
+	end
 end
 
 --[[Update panel by rewriting to all fields]]
