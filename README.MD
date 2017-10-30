@@ -22,7 +22,6 @@ CIVIG is dependant on TopPanel.xml so any modification that messes with this fil
 * William Howard for his [helpful tutorial](https://forums.civfanatics.com/threads/user-interface-components.461552/) on UI editing of Civ V, much of which still applies to Civ VI
 
 ## TODOS
-* Add symbol of nation to **best** and **worst** fields
 * Revise scripts - they're extremely ugly
 * Put in thank yous to Gedemon for his excellent spreadsheet of Civ 6 objects and their functions
 and William Howard for his tutorial into UI editing of Civ V
