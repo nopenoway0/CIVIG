@@ -4,22 +4,22 @@
 <!-- DateCreated: 10/27/2017 1:37:49 AM <Label String="Demographic"></Label>-->
 <Context ID="D_BOX">
 		<Container Style="FullScreenVignetteConsumer" />
-		<Box ID = "Main" Anchor="C,C" Size="600,490"	Color="11,27,40,255" ConsumeMouse="1">
+		<Box ID = "Main" Anchor="C,C" Size="800, 870"	Color="11,27,40,255" ConsumeMouse="1">
 			<Image	Anchor="C,T" Size="parent,44" Color="61,112,154,255"	Texture="Controls_Gradient_HalfRadial"  />
 			<Grid Size="parent+9,parent+9" Anchor="C,C" Style="WindowFrameTopOnly"/>
 				<Label Style="FontFlair20"	String="DEMOGRAPHICS" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
 				<Grid Anchor="C,T" Offset="0,44"	Size="parent-6,8"	Style="Divider3Grid" />
 				<Button	ID="Close" Anchor="R,T" Offset="-3,-1"	Size="44,44" Texture="Controls_CloseLarge" />
-				<Stack StackGrowth="Down" Anchor="C,C" Offset="0,25">
-				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-				<Grid Offset="0,0"	Size="parent-6,60" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+				<Stack StackGrowth="Down" Anchor="C,C" Offset="0, 70" Padding="0">
+					<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+					<Grid Offset="0,0"	Size="parent-6,120" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+					<Grid Offset="0,0"	Size="parent-6,120" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+					<Grid Offset="0,0"	Size="parent-6,120" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+					<Grid Offset="0,0"	Size="parent-6,120" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+					<Grid Offset="0,0"	Size="parent-6,135" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
 				</Stack>
-				<Stack Anchor="C,C" Offset="0,0" StackGrowth="Right" Padding="44">
-					<Stack StackGrowth="Down" Padding="42">
+				<Stack Anchor="C,C" Offset="0,30" StackGrowth="Right" Padding="80">
+					<Stack StackGrowth="Down" Padding="101">
 						<Label ID="title" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Demographic"/>
 						<Label ID="population" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Population"/>
 						<Label ID="mil" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Soldiers"/>
@@ -28,7 +28,7 @@
 						<Label ID="land" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Land"/>
 						<Label ID="goods" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Goods"/>
 					</Stack>
-					<Stack StackGrowth="Down" Padding="44">
+					<Stack StackGrowth="Down" Padding="103">
 						<Label String="Rank" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 						<Label ID="pop_rank" Style="ReportValueText" Color="Food" String="0"/>
 						<Label ID="mil_rank"  Style="ReportValueText" String="0" />
@@ -39,7 +39,7 @@
 					</Stack>
 
 
-					<Stack StackGrowth="Down" Padding="44">
+					<Stack StackGrowth="Down" Padding="103">
 						<Label String="Value" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 						<Label ID="pop_value" Style="ReportValueText" Color="Food" String="0"/>
 						<Label ID="mil_value"  Style="ReportValueText" String="0"/>
@@ -51,15 +51,37 @@
 
 					<Stack StackGrowth="Down" Padding="44">
 						<Label String="Best" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Label ID="pop_best"  Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="mil_best"  Style="ReportValueText" String="0" />
-						<Label ID="crop_best"  Style="ReportValueText" Color="Food" String="0" />
-						<Label ID="gnp_best"  Style="ReportValueText" String="0" />
-						<Label ID="land_best"  Style="ReportValueText" Color="Food" String="0" />
-						<Label ID="goods_best"  Style="ReportValueText" String="0"/>
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="pop_best"  Style="ReportValueText" Color="Food" String="0"/>
+						</Stack>
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="mil_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="mil_best"  Style="ReportValueText" String="0" />
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="crop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="crop_best"  Style="ReportValueText" Color="Food" String="0" />
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="gnp_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="gnp_best"  Style="ReportValueText" String="0" />
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="land_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="land_best"  Style="ReportValueText" Color="Food" String="0" />
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="goods_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="goods_best"  Style="ReportValueText" String="0"/>
+						</Stack>
 					</Stack>
 
-					<Stack StackGrowth="Down" Padding="44">
+					<Stack StackGrowth="Down" Padding="103">
 						<Label String="Average" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 						<Label ID="pop_average"  Style="ReportValueText" Color="Food" String="0"/>
 						<Label ID="mil_average"  Style="ReportValueText" String="0" />
@@ -71,12 +93,34 @@
 
 					<Stack StackGrowth="Down" Padding="44">
 						<Label String="Worst" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Label ID="pop_worst"  Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="mil_worst"  Style="ReportValueText" String="0"/>
-						<Label ID="crop_worst" Style="ReportValueText" Color="Food" String="0" />
-						<Label ID="gnp_worst"  Style="ReportValueText" String="0"/>
-						<Label ID="land_worst"  Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="goods_worst"  Style="ReportValueText" String="0"/>
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="pop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="pop_worst"  Style="ReportValueText" Color="Food" String="0"/>
+						</Stack>
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="mil_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="mil_worst"  Style="ReportValueText" String="0"/>
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="crop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="crop_worst" Style="ReportValueText" Color="Food" String="0" />
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="gnp_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="gnp_worst"  Style="ReportValueText" String="0"/>
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="land_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="land_worst"  Style="ReportValueText" Color="Food" String="0"/>
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="15">
+							<Image ID="goods_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							<Label ID="goods_worst"  Style="ReportValueText" String="0"/>
+						</Stack>
 					</Stack>		
 				</Stack>
 		</Box>
