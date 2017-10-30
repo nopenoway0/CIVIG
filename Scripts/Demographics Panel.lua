@@ -2,9 +2,6 @@
 -- Author: Benji
 -- DateCreated: 10/25/2017 6:27:12 PM
 --------------------------------------------------------------
-include("InstanceManager");
-include("SupportFunctions");
-include("CitySupport");
 
 local human_id = nil
 

@@ -18,11 +18,6 @@
       <File>Scripts/Load.lua</File>
     </AddGameplayScripts>
     <ImportFiles id="ImportFile">
-      <File>Scripts/CitySupport.lua</File>
-      <File>Scripts/Civ6Common.lua</File>
-      <File>Scripts/InstanceManager.lua</File>
-      <File>Scripts/SupportFunctions.lua</File>
-      <File>Scripts/TabSupport.lua</File>
       <File>Scripts/Demographics Panel.lua</File>
       <File>UI/Demographics Panel.xml</File>
       <File>UI/TopPanel.xml</File>
@@ -38,14 +33,8 @@
     </UserInterface>
   </InGameActions>
   <Files>
-    <File>Scripts/CitySupport.lua</File>
-    <File>Scripts/Civ6Common.lua</File>
     <File>Scripts/Demographics Panel.lua</File>
-    <File>Scripts/InstanceManager.lua</File>
     <File>Scripts/Load.lua</File>
-    <File>Scripts/Reminder.txt</File>
-    <File>Scripts/SupportFunctions.lua</File>
-    <File>Scripts/TabSupport.lua</File>
    <File>UI/Demographics Panel.xml</File>
     <File>UI/TopPanel.xml</File>
   </Files>
