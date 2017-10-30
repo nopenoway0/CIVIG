@@ -1,11 +1,11 @@
 # CIVIG
 ## A Demographics Information Mod for CiV VI
-![ingame_example](https://user-images.githubusercontent.com/13967957/32148172-0b50d6f4-bcb0-11e7-945b-043c733aa942.jpg)
+![ingame_example](https://user-images.githubusercontent.com/13967957/32166247-7521832c-bd22-11e7-976b-2d5b9549d455.jpg)
 
 CIVIG aims to bring the demographics panel from Civilizations V into Civilizations VI. The formulas used for calculating each field are listed in the [Civ V Wiki](http://civilization.wikia.com/wiki/Demographics_%28Civ5%29).
 
 The Demographics panel contains information about "real" population, GNP, crop yield, soldiers and goods.
-![panel_example](https://user-images.githubusercontent.com/13967957/32148174-0ec6b9d4-bcb0-11e7-83c2-fb1cd32b8c21.jpg)
+![panel_example](https://user-images.githubusercontent.com/13967957/32166127-342b541a-bd22-11e7-96f4-8b56a12a279a.jpg)
 
 To access the panel simple click the new **Demographics** button next to the reports button:
 ![button_location](https://user-images.githubusercontent.com/13967957/32148170-01d58926-bcb0-11e7-80ff-e8d7edd78f7e.jpg)
