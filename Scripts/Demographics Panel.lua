@@ -5,6 +5,54 @@
 
 local human_id = nil
 local start_year :number = nil
+local context_store = nil
+local population_graphs = {}
+local mil_graphs = {}
+local gnp_graphs = {}
+local goods_graphs = {}
+local crops_graphs = {}
+local land_graphs = {}
+local graph_maxes = {}
+local function YearToNumber(input)
+	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
+	if input:find("BC") then
+		output = output * -1
+	end
+	return output
+end
+
+local function IsValidPlayer(player)
+	if player == nil then return false end
+	if player:IsAlive() ~= true then return false end
+	--if player:GetID() < 0 then return false end
+	if player:IsMajor() == false then return false end 
+	return true
+end
+
+local function LoadData(player)
+	if IsValidPlayer(player) == false then return -1 end
+	local sequence :string = GameConfiguration.GetValue("year_sequence")
+	local years = {}
+	local data = {}
+	local complete_data = {}
+	if sequence == nil then return -1 end
+	sequence:gsub( "%-?%d+", function(i) table.insert(years, i) end)
+	local prefix = tostring(player:GetID()) .. "_"
+	for x,z in pairs(years) do
+		data = {}
+		print("loading from ", tonumber(z))
+		data["year"] = tonumber(z)
+		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
+		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
+		data["gnp"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GNP")
+		data["crop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_CROP")
+		data["land"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_LAND")
+		data["goods"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GOODS")
+		table.insert(complete_data, data)
+	end
+
+	return complete_data
+end
 
 local function Save(key, input)
 	if type(input) == "string" or type(input) == "number" then
@@ -29,14 +77,6 @@ function SetIcon(control, id)
 		icon = icon .. "CIVILIZATION_UNKNOWN"
 	end
 	control:SetIcon(icon)
-end
-
-local function IsValidPlayer(player)
-	if player == nil then return false end
-	if player:IsAlive() ~= true then return false end
-	--if player:GetID() < 0 then return false end
-	if player:IsMajor() == false then return false end 
-	return true
 end
 
 local function GetLand(player)
@@ -378,93 +418,14 @@ function ClosePanel()
 	ContextPtr:SetHide(true)
 end
 
-local context_store = nil
-function OpenPanel()
-	-- add sound effects here
-	context_store:SetHide(false)
-	UpdatePanel()
-	OpenGraph() -- just for tests, move to button
+local function ShowGraph()
+	Controls.ResultsGraph:SetHide(false)
+	Controls.InfoPanel:SetHide(true)
 end
 
-local function YearToNumber(input)
-	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
-	if input:find("BC") then
-		output = output * -1
-	end
-	return output
-end
-
-function OpenGraph()
-	local years = {}
-	years["start"] = start_year
-	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))
-
-	print("start year: ", years["start"])
-	print("current year: ", years["current"])
-
-	-- set year and intervals constant for all graphs
-	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
-	local number_interval = {}
-	number_interval["x"] = math.floor((math.abs(years["start"]) - math.abs(years["current"])) / 4) -- need to modify for when the year turns to ad
-	print("setting x interval to ", number_interval["x"])
-	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
-	print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
-	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
-	-- constant for all graphs end
-	local range_pop = {}
-	range_pop["min"] = 0
-
-	local demographics = GetDemographics()
-	local best = demographics[human_id]
-	local worst = demographics[human_id]
-	for i, j in pairs(demographics) do
-		if j < worst then
-			worst = j
-		end
-		if j > best then 
-			best = j
-		end
-	end
-
-	range_pop["best"] = best
-	range_pop["worst"] = worst
-	number_interval["y"] = math.floor(((range_pop["best"] - range_pop["worst"]) / 4))
-
-	Controls.ResultsGraph:SetRange(range_pop["worst"], range_pop["best"] )
-	Controls.ResultsGraph:SetYNumberInterval(number_interval["y"])
-	Controls.ResultsGraph:SetYTickInterval(math.floor(number_interval["y"] / 4))
-
-	local dataSet = {}
-	dataSet[0] = 0
-	dataSet[1] = 10000
-	dataSet[2] = 15000
-
-	local graph = Controls.ResultsGraph:CreateDataSet("Population")
-
-	graph:AddVertex(-4000, dataSet[0])
-	graph:AddVertex(-3799, dataSet[1])
-	graph:AddVertex(-3600, dataSet[2])
-
-end
-
-local function LoadData(player)
-	if IsValidPlayer(player) == false then return -1 end
-	local sequence :string = GameConfiguration.GetValue("year_sequence")
-	local years = {}
-	local data = {}
-	if sequence == nil then return -1 end
-	sequence:gsub( "%-?%d+", function(i) table.insert(years, i) end)
-	local prefix = tostring(player:GetID()) .. "_"
-	for x,z in pairs(years) do
-		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
-		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
-		data["gnp"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GNP")
-		data["crop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_CROP")
-		data["land"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_LAND")
-		data["goods"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GOODS")
-	end
-
-	return data
+local function ShowInfoPanel()
+	Controls.ResultsGraph:SetHide(true)
+	Controls.InfoPanel:SetHide(false)
 end
 
 local function GetData(player)
@@ -484,6 +445,262 @@ local function GetData(player)
 	return data
 end
 
+local function ShowMilGraph()
+	for x,z in pairs(Players) do
+		if IsValidPlayer(z) then
+			population_graphs[z:GetID()]:SetVisible(false)
+			crops_graphs[z:GetID()]:SetVisible(false)
+			land_graphs[z:GetID()]:SetVisible(false)
+			gnp_graphs[z:GetID()]:SetVisible(false)
+			goods_graphs[z:GetID()]:SetVisible(false)
+			mil_graphs[z:GetID()]:SetVisible(true)
+		end
+	end
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["mil"] * 1.1))
+	local number_interval = math.ceil(graph_maxes["mil"] / 4)
+	Controls.ResultsGraph:SetYNumberInterval(number_interval)
+	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+end
+
+local function ShowPopGraph()
+	for x,z in pairs(Players) do
+		if IsValidPlayer(z) then
+		population_graphs[z:GetID()]:SetVisible(true)
+		crops_graphs[z:GetID()]:SetVisible(false)
+		land_graphs[z:GetID()]:SetVisible(false)
+		gnp_graphs[z:GetID()]:SetVisible(false)
+		goods_graphs[z:GetID()]:SetVisible(false)
+		mil_graphs[z:GetID()]:SetVisible(false)
+		end
+	end
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["pop"] * 1.1))
+	local number_interval = math.ceil(graph_maxes["pop"] / 4)
+	Controls.ResultsGraph:SetYNumberInterval(number_interval)
+	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+end
+
+local function ShowYieldGraph()
+	for x,z in pairs(Players) do
+		if IsValidPlayer(z) then
+			population_graphs[z:GetID()]:SetVisible(false)
+			crops_graphs[z:GetID()]:SetVisible(true)
+			land_graphs[z:GetID()]:SetVisible(false)
+			gnp_graphs[z:GetID()]:SetVisible(false)
+			goods_graphs[z:GetID()]:SetVisible(false)
+			mil_graphs[z:GetID()]:SetVisible(false)
+		end
+	end
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["crops"] * 1.1))
+	local number_interval = math.ceil(graph_maxes["crops"] / 4)
+	Controls.ResultsGraph:SetYNumberInterval(number_interval)
+	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+end
+
+local function ShowGNPGraph()
+	for x,z in pairs(Players) do
+		if IsValidPlayer(z) then
+			population_graphs[z:GetID()]:SetVisible(false)
+			crops_graphs[z:GetID()]:SetVisible(false)
+			land_graphs[z:GetID()]:SetVisible(false)
+			gnp_graphs[z:GetID()]:SetVisible(true)
+			goods_graphs[z:GetID()]:SetVisible(false)
+			mil_graphs[z:GetID()]:SetVisible(false)
+		end
+	end
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["gnp"] * 1.1))
+	local number_interval = math.ceil(graph_maxes["gnp"] / 4)
+	Controls.ResultsGraph:SetYNumberInterval(number_interval)
+	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+end
+
+local function ShowLandGraph()
+	for x,z in pairs(Players) do
+		if IsValidPlayer(z) then
+			population_graphs[z:GetID()]:SetVisible(false)
+			crops_graphs[z:GetID()]:SetVisible(false)
+			land_graphs[z:GetID()]:SetVisible(true)
+			gnp_graphs[z:GetID()]:SetVisible(false)
+			goods_graphs[z:GetID()]:SetVisible(false)
+			mil_graphs[z:GetID()]:SetVisible(false)
+		end
+	end
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["land"] * 1.1))
+	local number_interval = math.ceil(graph_maxes["land"] / 4)
+	Controls.ResultsGraph:SetYNumberInterval(math.ceil(graph_maxes["land"] / 4))
+	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+
+end
+
+local function ShowGoodsGraph()
+	for x,z in pairs(Players) do
+		if IsValidPlayer(z) then
+			population_graphs[z:GetID()]:SetVisible(false)
+			crops_graphs[z:GetID()]:SetVisible(false)
+			land_graphs[z:GetID()]:SetVisible(false)
+			gnp_graphs[z:GetID()]:SetVisible(false)
+			goods_graphs[z:GetID()]:SetVisible(true)
+			mil_graphs[z:GetID()]:SetVisible(false)
+		end
+	end
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["goods"] * 1.1))
+	local number_interval = math.ceil(graph_maxes["crops"] / 4)
+	Controls.ResultsGraph:SetYNumberInterval(math.ceil(graph_maxes["goods"] / 4))
+end
+
+local function UpdateGraph()
+	local years = {}
+	years["start"] = start_year
+	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))
+
+	print("start year: ", years["start"])
+	print("current year: ", years["current"])
+
+	-- set year and intervals constant for all graphs
+	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
+	local number_interval = {}
+	number_interval["x"] = math.floor((math.abs(years["start"]) - (years["current"] * -1)) / 4) -- need to modify for when the year turns to ad
+	print("setting x interval to ", number_interval["x"])
+	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
+	print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
+	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
+	-- constant for all graphs end
+	local data = nil
+	
+	local best = 0
+	local worst = 10000000
+
+	-- create all the graphs
+	population_graphs = {}
+	mil_graphs = {}
+	gnp_graphs = {}
+	goods_graphs = {}
+	crops_graphs = {}
+	land_graphs = {}
+
+	graph_maxes["pop"] = 0;
+	graph_maxes["mil"] = 0;
+	graph_maxes["gnp"] = 0;
+	graph_maxes["crops"] = 0;
+	graph_maxes["land"] = 0;
+	graph_maxes["goods"] = 0;
+
+
+
+	for i, p in pairs(Players)	do
+		if IsValidPlayer(p) then
+			population_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
+			population_graphs[p:GetID()]:SetVisible(false)
+
+			mil_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_military")
+			mil_graphs[p:GetID()]:SetVisible(false)
+
+			gnp_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_gnp")
+			gnp_graphs[p:GetID()]:SetVisible(false)
+			
+			goods_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_goods")
+			goods_graphs[p:GetID()]:SetVisible(false)
+			
+			crops_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
+			crops_graphs[p:GetID()]:SetVisible(false)
+			
+			land_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_land")
+			land_graphs[p:GetID()]:SetVisible(false)
+		end
+	end
+	
+	local range_pop = {}
+	for i, p in pairs(Players) do
+		if IsValidPlayer(p) then
+			data = LoadData(p)
+			best = 0
+			worst = 10000000
+			for x,z in pairs(data) do
+				for i, j in pairs(z) do
+					print("i: ", i, "j: ", j)
+
+					if best < tonumber(j) then
+						best = tonumber(j)
+					end
+
+					if(i == "pop") then
+						--local tmp : number = tonumber(z["year"])
+						--local tmp2: number = tonumber(j)
+						print("inserting point: year, pop - (", tonumber(z["year"]), ", ", tonumber(j), ")")
+						population_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						population_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
+						if tonumber(j) > graph_maxes["pop"] then
+							graph_maxes["pop"] = tonumber(j)
+						end 
+					end
+
+					if(i == "mil") then 
+						mil_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
+						if tonumber(j) > graph_maxes["mil"] then
+							graph_maxes["mil"] = tonumber(j)
+						end 
+					end
+
+					if(i == "gnp") then
+						gnp_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
+						if tonumber(j) > graph_maxes["gnp"] then
+							graph_maxes["gnp"] = tonumber(j)
+						end 
+					end
+
+					if(i == "goods") then
+						goods_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
+						if tonumber(j) > graph_maxes["goods"] then
+							graph_maxes["goods"] = tonumber(j)
+						end 
+					end
+
+					if(i == "crop") then
+						crops_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						crops_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
+						if tonumber(j) > graph_maxes["crops"] then
+							graph_maxes["crops"] = tonumber(j)
+						end 
+					end
+
+					if(i == "land") then
+						land_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						land_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
+						if tonumber(j) > graph_maxes["land"] then
+							graph_maxes["land"] = tonumber(j)
+						end 					
+					end
+
+					-- have better way to set worst
+					if worst > tonumber(j) then
+						worst = tonumber(j)
+					end
+				end
+			end
+		end
+	end
+
+--	graph:SetVisible(true)
+	range_pop["best"] = best
+	range_pop["worst"] = worst
+	number_interval["y"] = math.floor(((range_pop["best"] - range_pop["worst"]) / 4))
+
+	Controls.ResultsGraph:SetRange(range_pop["worst"], range_pop["best"] )
+	Controls.ResultsGraph:SetYNumberInterval(number_interval["y"])
+	Controls.ResultsGraph:SetYTickInterval(math.floor(number_interval["y"] / 4))
+
+	ShowPopGraph()
+end
+
+function OpenPanel()
+	-- add sound effects here
+	context_store:SetHide(false)
+	ShowInfoPanel()
+	UpdatePanel()
+	UpdateGraph() -- just for tests, move to button
+end
 
 local function StoreAllData()
 	for i, p in pairs(Players) do
@@ -522,6 +739,19 @@ function Init()
 	context_store = ContextPtr
 	UpdatePanel()
 	Controls.Close:RegisterCallback(Mouse.eLClick, ClosePanel)
+	Controls.graphs_button:RegisterCallback(Mouse.eLClick, ShowGraph)
+	Controls.info_button:RegisterCallback(Mouse.eLClick, ShowInfoPanel)
+	
+	Controls.show_pop_graph:RegisterCallback(Mouse.eLClick, ShowPopGraph)
+	Controls.show_mil_graph:RegisterCallback(Mouse.eLClick, ShowMilGraph)
+	Controls.show_gnp_graph:RegisterCallback(Mouse.eLClick, ShowGNPGraph)
+	Controls.show_land_graph:RegisterCallback(Mouse.eLClick, ShowLandGraph)
+	Controls.show_goods_graph:RegisterCallback(Mouse.eLClick, ShowGoodsGraph)
+	Controls.show_crop_graph:RegisterCallback(Mouse.eLClick, ShowYieldGraph)
+
+
+
+
 	context_store:SetHide(true)
 	local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
 	top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
