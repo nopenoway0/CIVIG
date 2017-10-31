@@ -7,7 +7,7 @@
 		
 		<Box ID = "Main" Anchor="C,C" Size="1024, 759"	Color="11,27,40,255" ConsumeMouse="1">
 
-			<Container ID="GraphPanel"  Anchor="C,C" Size="1024,parent" Hidden="0" Offset="0,0">
+			<Container ID="GraphPanel"  Anchor="C,C" Size="1024,parent" Offset="0,0">
 				<Grid  Anchor="C,C" Texture="Controls_SubContainer3" Offset="0,20" Size="parent-10,parent-50"  SliceCorner="20,20" SliceSize="0,0" Color="0,0,0,100">
 				<Grid  Texture="Controls_SubContainerFill" Size="parent,parent"  SliceCorner="11,11" SliceSize="0,0" Color="0,0,0,50"/>
 				<Image Texture="Controls_Deco3" Size="27,18" Anchor="L,T" Offset="18,16" Color=" 255,255,255,25"/>
@@ -19,10 +19,18 @@
 						<ScrollBar Style="Slider_Light" Anchor="L,C" Offset="2,0"/>
 						<Stack Anchor="L,T" Offset="2,0" StackGrowth="Bottom" Padding="2" ID="GraphLegendStack" />
 					</ScrollPanel>
-					<Graph ID="ResultsGraph" Size="900,600" Anchor="C,C" Offset="0,0" FontStyle="ButtonText14" Domain="-4000, -3960" Range="0,1000" TickInterval="250,500" NumberInterval="1000,2000" ShowTicks="1,1" ShowGridLines="50,50" ShowNumbers="1,1" ShowAxes="1,1" Background="0,0,0,100">
-						<Label Anchor="C,C" Style="ButtonText20" ID="NoGraphData" String="LOC_UI_ENDGAME_REPLAY_NOGRAPHDATA" Hidden="0"/>
+					<Graph ID="ResultsGraph" Size="800,600" Anchor="C,C" Offset="0,0" FontStyle="ButtonText14" Domain="-4000, -3960" Range="0,1000" TickInterval="250,500" NumberInterval="1000,2000" ShowTicks="1,1" ShowGridLines="50,50" ShowNumbers="1,1" ShowAxes="1,1" Background="0,0,0,100">
+						<Label Anchor="C,B" Offset="0,-25" Style="ButtonText20" ID="YearLabel" String="Year" Hidden="0"/>
+						<Label Anchor="L,C" Offset="-95, -40" Style="ButtonText20" ID="YLabel" String="Population" Hidden="0">
 					</Graph>
-
+					<Stack ID="graph_selection_stack" StackGrowth="Down" Padding="50" Anchor="R,B" Offset="-110, 80">
+						<GridButton ID="show_pop_graph" Anchor="C,T" Style="RoundedButton" String="Population" Size="110,27"/>
+						<GridButton ID="show_mil_graph" Anchor="C,T" Style="RoundedButton" String="Soldiers" Size="110,27"/>
+						<GridButton ID="show_crop_graph" Anchor="C,T" Style="RoundedButton" String="Crop Yield" Size="110,27"/>
+						<GridButton ID="show_gnp_graph" Anchor="C,T" Style="RoundedButton" String="GNP" Size="110,27"/>
+						<GridButton ID="show_land_graph" Anchor="C,T" Style="RoundedButton" String="Land" Size="110,27"/>
+						<GridButton ID="show_goods_graph" Anchor="C,T" Style="RoundedButton" String="Goods" Size="110,27"/>
+					</Stack>
 				<!--<PullDown  Anchor="C,T" Style="PullDownBlue" Size="720,24" Offset="90,12" ID="GraphDataSetPulldown" />-->
 			</Container>
 
@@ -31,7 +39,9 @@
 				<Button	ID="Close" Anchor="R,T" Offset="-3,-1"	Size="44,44" Texture="Controls_CloseLarge" />
 				<Grid Anchor="C,T" Offset="0,44"	Size="parent-6,8"	Style="Divider3Grid" />
 				<Label Style="FontFlair20"	String="DEMOGRAPHICS" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
-				<Container Anchor="C,C" ID="InfoPanel" Hidden="1">
+				<GridButton ID="graphs_button" Anchor="C,T" Style="RoundedButton" Offset="200,10" String="Graphs" Size="140,27"/>
+				<GridButton ID="info_button" Anchor="C,T" Style="RoundedButton" Offset="-200,10" String="Info" Size="140,27"/>
+				<Container Anchor="C,C" ID="InfoPanel" >
 					<Stack StackGrowth="Down" Anchor="C,C" Offset="0, 55" Padding="0">
 						<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
 						<Grid Offset="0,0"	Size="parent-6,110" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
@@ -146,6 +156,5 @@
 						</Stack>		
 					</Stack>
 				</Container>
-				<GraphButton ID="Graphs_button"/>
 		</Box>
 </Context>
