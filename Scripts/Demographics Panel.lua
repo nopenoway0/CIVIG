@@ -23,7 +23,7 @@ end
 
 local function IsValidPlayer(player)
 	if player == nil then return false end
-	if player:IsAlive() ~= true then return false end
+	--if player:IsAlive() ~= true then return false end
 	--if player:GetID() < 0 then return false end
 	if player:IsMajor() == false then return false end 
 	return true
@@ -575,12 +575,6 @@ local function UpdateGraph()
 	local worst = 10000000
 
 	-- create all the graphs
-	population_graphs = {}
-	mil_graphs = {}
-	gnp_graphs = {}
-	goods_graphs = {}
-	crops_graphs = {}
-	land_graphs = {}
 
 	graph_maxes["pop"] = 0;
 	graph_maxes["mil"] = 0;
@@ -596,26 +590,33 @@ local function UpdateGraph()
 
 			color = PlayerConfigurations[p:GetID()]:GetColor()
 
+			if population_graphs[p:GetID()] then population_graphs[p:GetID()]:Clear() end
 			population_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
 			population_graphs[p:GetID()]:SetColor(color)
 			population_graphs[p:GetID()]:SetVisible(false)
 
+			if mil_graphs[p:GetID()] then mil_graphs[p:GetID()]:Clear() end
 			mil_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_military")
 			mil_graphs[p:GetID()]:SetColor(color)
 			mil_graphs[p:GetID()]:SetVisible(false)
 
+			if gnp_graphs[p:GetID()] then gnp_graphs[p:GetID()]:Clear() end
 			gnp_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_gnp")
+			gnp_graphs[p:GetID()]:SetWidth(2.0)
 			gnp_graphs[p:GetID()]:SetColor(color)
 			gnp_graphs[p:GetID()]:SetVisible(false)
 			
+			if goods_graphs[p:GetID()] then goods_graphs[p:GetID()]:Clear() end
 			goods_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_goods")
 			goods_graphs[p:GetID()]:SetColor(color)
 			goods_graphs[p:GetID()]:SetVisible(false)
 			
+			if crops_graphs[p:GetID()] then crops_graphs[p:GetID()]:Clear() end
 			crops_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
 			crops_graphs[p:GetID()]:SetColor(color)
 			crops_graphs[p:GetID()]:SetVisible(false)
 			
+			if land_graphs[p:GetID()] then land_graphs[p:GetID()]:Clear() end
 			land_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_land")
 			land_graphs[p:GetID()]:SetColor(color)
 			land_graphs[p:GetID()]:SetVisible(false)
