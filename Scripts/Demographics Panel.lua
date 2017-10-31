@@ -460,6 +460,7 @@ local function ShowMilGraph()
 	local number_interval = math.ceil(graph_maxes["mil"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+	Controls.YLabel:SetText("Soldiers")
 end
 
 local function ShowPopGraph()
@@ -477,6 +478,7 @@ local function ShowPopGraph()
 	local number_interval = math.ceil(graph_maxes["pop"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+	Controls.YLabel:SetText("Pop.")
 end
 
 local function ShowYieldGraph()
@@ -494,6 +496,7 @@ local function ShowYieldGraph()
 	local number_interval = math.ceil(graph_maxes["crops"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+	Controls.YLabel:SetText("Crop Yield")
 end
 
 local function ShowGNPGraph()
@@ -511,6 +514,7 @@ local function ShowGNPGraph()
 	local number_interval = math.ceil(graph_maxes["gnp"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
+	Controls.YLabel:SetText("GNP")
 end
 
 local function ShowLandGraph()
@@ -528,7 +532,7 @@ local function ShowLandGraph()
 	local number_interval = math.ceil(graph_maxes["land"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(math.ceil(graph_maxes["land"] / 4))
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-
+	Controls.YLabel:SetText("Land")
 end
 
 local function ShowGoodsGraph()
@@ -545,12 +549,13 @@ local function ShowGoodsGraph()
 	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["goods"] * 1.1))
 	local number_interval = math.ceil(graph_maxes["crops"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(math.ceil(graph_maxes["goods"] / 4))
+	Controls.YLabel:SetText("Goods")
 end
 
 local function UpdateGraph()
 	local years = {}
 	years["start"] = start_year
-	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))
+	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))
 
 	print("start year: ", years["start"])
 	print("current year: ", years["current"])
@@ -558,7 +563,7 @@ local function UpdateGraph()
 	-- set year and intervals constant for all graphs
 	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
 	local number_interval = {}
-	number_interval["x"] = math.floor((math.abs(years["start"]) - (years["current"] * -1)) / 4) -- need to modify for when the year turns to ad
+	number_interval["x"] = math.ceil((math.abs(years["start"]) - (years["current"] * -1)) / 10) -- need to modify for when the year turns to ad
 	print("setting x interval to ", number_interval["x"])
 	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
 	print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
@@ -584,26 +589,35 @@ local function UpdateGraph()
 	graph_maxes["land"] = 0;
 	graph_maxes["goods"] = 0;
 
-
+	local color = nil
 
 	for i, p in pairs(Players)	do
 		if IsValidPlayer(p) then
+
+			color = PlayerConfigurations[p:GetID()]:GetColor()
+
 			population_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
+			population_graphs[p:GetID()]:SetColor(color)
 			population_graphs[p:GetID()]:SetVisible(false)
 
 			mil_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_military")
+			mil_graphs[p:GetID()]:SetColor(color)
 			mil_graphs[p:GetID()]:SetVisible(false)
 
 			gnp_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_gnp")
+			gnp_graphs[p:GetID()]:SetColor(color)
 			gnp_graphs[p:GetID()]:SetVisible(false)
 			
 			goods_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_goods")
+			goods_graphs[p:GetID()]:SetColor(color)
 			goods_graphs[p:GetID()]:SetVisible(false)
 			
 			crops_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
+			crops_graphs[p:GetID()]:SetColor(color)
 			crops_graphs[p:GetID()]:SetVisible(false)
 			
 			land_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_land")
+			land_graphs[p:GetID()]:SetColor(color)
 			land_graphs[p:GetID()]:SetVisible(false)
 		end
 	end
@@ -627,7 +641,6 @@ local function UpdateGraph()
 						--local tmp2: number = tonumber(j)
 						print("inserting point: year, pop - (", tonumber(z["year"]), ", ", tonumber(j), ")")
 						population_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						population_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
 						if tonumber(j) > graph_maxes["pop"] then
 							graph_maxes["pop"] = tonumber(j)
 						end 
@@ -635,7 +648,6 @@ local function UpdateGraph()
 
 					if(i == "mil") then 
 						mil_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
 						if tonumber(j) > graph_maxes["mil"] then
 							graph_maxes["mil"] = tonumber(j)
 						end 
@@ -643,7 +655,6 @@ local function UpdateGraph()
 
 					if(i == "gnp") then
 						gnp_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
 						if tonumber(j) > graph_maxes["gnp"] then
 							graph_maxes["gnp"] = tonumber(j)
 						end 
@@ -651,7 +662,6 @@ local function UpdateGraph()
 
 					if(i == "goods") then
 						goods_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
 						if tonumber(j) > graph_maxes["goods"] then
 							graph_maxes["goods"] = tonumber(j)
 						end 
@@ -659,7 +669,6 @@ local function UpdateGraph()
 
 					if(i == "crop") then
 						crops_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						crops_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
 						if tonumber(j) > graph_maxes["crops"] then
 							graph_maxes["crops"] = tonumber(j)
 						end 
@@ -667,7 +676,6 @@ local function UpdateGraph()
 
 					if(i == "land") then
 						land_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						land_graphs[p:GetID()]:SetColor(UI.GetColorValue(GameInfo.PlayerColors[p:GetID()]))
 						if tonumber(j) > graph_maxes["land"] then
 							graph_maxes["land"] = tonumber(j)
 						end 					
