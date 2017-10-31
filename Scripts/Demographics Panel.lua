@@ -447,6 +447,26 @@ function OpenGraph()
 
 end
 
+local function LoadData(player)
+	if IsValidPlayer(player) == false then return -1 end
+	local sequence :string = GameConfiguration.GetValue("year_sequence")
+	local years = {}
+	local data = {}
+	if sequence == nil then return -1 end
+	sequence:gsub( "%-?%d+", function(i) table.insert(years, i) end)
+	local prefix = tostring(player:GetID()) .. "_"
+	for x,z in pairs(years) do
+		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
+		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
+		data["gnp"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GNP")
+		data["crop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_CROP")
+		data["land"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_LAND")
+		data["goods"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GOODS")
+	end
+
+	return data
+end
+
 local function GetData(player)
 	if IsValidPlayer(player) == false then return -1 end
 	local data = {}
@@ -454,22 +474,40 @@ local function GetData(player)
 	prefix = prefix .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))) .. "_"
 
 	-- get population
-	data["pop"] = prefix  .. "POP_" .. tostring(GetPop(player))
-	data["military"] = prefix .. "MIL_" .. tostring(GetMight(player))
-	data["gnp"] =  prefix .. "GNP_" .. tostring(GetGNP(player))
-	data["crops"] = prefix .. "CROP_" .. tostring(GetCropYield(player))
-	data["land"] = prefix .. "LAND_" .. tostring(GetLand(player))
-	data["goods"] = prefix .. "GOODS_" .. tostring(GetGoods(player))
+	data[prefix  .. "POP"] =  math.floor(GetPop(player))
+	data[prefix .. "MIL"] = math.floor(GetMight(player))
+	data[prefix .. "GNP"] =   math.floor(GetGNP(player))
+	data[prefix .. "CROP"] =   math.floor(GetCropYield(player))
+	data[ prefix .. "LAND"] =  math.floor(GetLand(player))
+	data[prefix .. "GOODS"] =   math.floor(GetGoods(player))
 
 	return data
 end
 
+
 local function StoreAllData()
-	print("turn ended starting store!")
-	local data = GetData(Players[0])
-	for x, z in pairs(data) do
-		print(z)
+	for i, p in pairs(Players) do
+		if IsValidPlayer(p) then 
+			local data = GetData(p)
+			for x, z in pairs(data) do
+				print("storing key: ", x, " with value: ", z)
+				GameConfiguration.SetValue(x, z)
+			end
+		end
 	end
+	local sequence = GameConfiguration.GetValue("year_sequence")
+	if(sequence == nil) then
+		GameConfiguration.SetValue("year_sequence", tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
+	else
+		GameConfiguration.SetValue("year_sequence", sequence .. "_" .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
+		print("current year_sequence: ", sequence ..tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
+		-- add check for duplicate year?
+	end
+end
+
+-- add cache so it's not loading all data everytime
+local function LoadAllData()
+
 end
 
 -- change in case of multiplayers or hotseat
