@@ -4,7 +4,20 @@
 --------------------------------------------------------------
 
 local human_id = nil
+local start_year :number = nil
 
+local function Save(key, input)
+	if type(input) == "string" or type(input) == "number" then
+		GameConfiguration.SetValue(key, input)
+	else 
+		return -1
+	end
+end
+
+local function Load(key)
+	local value = GameConfiguration.GetValue(key)
+	return value
+end
 
 function SetIcon(control, id)
 	local icon = "ICON_"
@@ -261,7 +274,6 @@ local function UpdateField(field)
 	best = math.floor(best)
 	local value = math.floor(demographics[human_id])
 	-- Set all population fields
-	print("updating ", field, " fields")
 	if(field == "population") then 
 		result = GetSuffix(value)
 		Controls.pop_value:SetText(tostring(result[0]) .. result[1])
@@ -371,6 +383,93 @@ function OpenPanel()
 	-- add sound effects here
 	context_store:SetHide(false)
 	UpdatePanel()
+	OpenGraph() -- just for tests, move to button
+end
+
+local function YearToNumber(input)
+	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
+	if input:find("BC") then
+		output = output * -1
+	end
+	return output
+end
+
+function OpenGraph()
+	local years = {}
+	years["start"] = start_year
+	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))
+
+	print("start year: ", years["start"])
+	print("current year: ", years["current"])
+
+	-- set year and intervals constant for all graphs
+	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
+	local number_interval = {}
+	number_interval["x"] = math.floor((math.abs(years["start"]) - math.abs(years["current"])) / 4) -- need to modify for when the year turns to ad
+	print("setting x interval to ", number_interval["x"])
+	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
+	print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
+	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
+	-- constant for all graphs end
+	local range_pop = {}
+	range_pop["min"] = 0
+
+	local demographics = GetDemographics()
+	local best = demographics[human_id]
+	local worst = demographics[human_id]
+	for i, j in pairs(demographics) do
+		if j < worst then
+			worst = j
+		end
+		if j > best then 
+			best = j
+		end
+	end
+
+	range_pop["best"] = best
+	range_pop["worst"] = worst
+	number_interval["y"] = math.floor(((range_pop["best"] - range_pop["worst"]) / 4))
+
+	Controls.ResultsGraph:SetRange(range_pop["worst"], range_pop["best"] )
+	Controls.ResultsGraph:SetYNumberInterval(number_interval["y"])
+	Controls.ResultsGraph:SetYTickInterval(math.floor(number_interval["y"] / 4))
+
+	local dataSet = {}
+	dataSet[0] = 0
+	dataSet[1] = 10000
+	dataSet[2] = 15000
+
+	local graph = Controls.ResultsGraph:CreateDataSet("Population")
+
+	graph:AddVertex(-4000, dataSet[0])
+	graph:AddVertex(-3799, dataSet[1])
+	graph:AddVertex(-3600, dataSet[2])
+
+end
+
+local function GetData(player)
+	if IsValidPlayer(player) == false then return -1 end
+	local data = {}
+	local prefix = tostring(player:GetID()) .. "_"
+	prefix = prefix .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))) .. "_"
+
+	-- get population
+	data["pop"] = prefix  .. "POP_" .. tostring(GetPop(player))
+	data["military"] = prefix .. "MIL_" .. tostring(GetMight(player))
+	data["gnp"] =  prefix .. "GNP_" .. tostring(GetGNP(player))
+	data["crops"] = prefix .. "CROP_" .. tostring(GetCropYield(player))
+	data["land"] = prefix .. "LAND_" .. tostring(GetLand(player))
+	data["goods"] = prefix .. "GOODS_" .. tostring(GetGoods(player))
+
+	return data
+end
+
+local function StoreAllData()
+	print("turn ended starting store!")
+	local data = GetData(Players[0])
+	for x, z in pairs(data) do
+		print(z)
+	end
 end
 
 -- change in case of multiplayers or hotseat
@@ -381,6 +480,7 @@ function Init()
 			if j:IsHuman() then human_id = j:GetID() break end
 		end
 	end
+	start_year = GameConfiguration.GetStartYear()
 	context_store = ContextPtr
 	UpdatePanel()
 	Controls.Close:RegisterCallback(Mouse.eLClick, ClosePanel)
@@ -390,3 +490,4 @@ function Init()
 end
 
 Events.LoadGameViewStateDone.Add(Init)
+Events.TurnEnd.Add(StoreAllData)
