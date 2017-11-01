@@ -6,19 +6,79 @@
 		<Container Style="FullScreenVignetteConsumer" />
 		
 		<Box ID = "Main" Anchor="C,C" Size="1024, 759"	Color="11,27,40,255" ConsumeMouse="1">
-
 			<Container ID="GraphPanel"  Anchor="C,C" Size="1024,parent" Offset="0,0">
+
+				<PullDown  Anchor="C,T" Style="PullDownBlue" Size="250,24" Offset="0,53" ID="GraphDataSetPulldown"/>
+
+				<Container ID="Graph_Legend" Anchor="L,C" Offset="30,-270">
+					<Stack StackGrowth="Right">
+						<Stack StackGrowth="Down" Padding="10">
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+							
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+
+							<Stack StackGrowth="Right" Padding="10">
+								<CheckBox ID="ShowHide" Anchor="R,C" Offset="4,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+							</Stack>
+						</Stack>
+					</Stack>
+				</Container>
 				<Grid  Anchor="C,C" Texture="Controls_SubContainer3" Offset="0,20" Size="parent-10,parent-50"  SliceCorner="20,20" SliceSize="0,0" Color="0,0,0,100">
 				<Grid  Texture="Controls_SubContainerFill" Size="parent,parent"  SliceCorner="11,11" SliceSize="0,0" Color="0,0,0,50"/>
 				<Image Texture="Controls_Deco3" Size="27,18" Anchor="L,T" Offset="18,16" Color=" 255,255,255,25"/>
 				<Image Texture="Controls_Deco3" Size="27,18" Anchor="R,T" Offset="18,16" Color=" 255,255,255,25"/>
 				</Grid>
 				<Image Texture="Controls_Glow" Size="500,500" Anchor="C,T" Offset="30,-20" Color=" 255,255,255,25"/>
-					<Graph ID="ResultsGraph" Size="800,600" Anchor="C,C" Offset="0,0" FontStyle="ButtonText14" Domain="-4000, -3960" Range="0,1000" TickInterval="250,500" NumberInterval="1000,2000" ShowTicks="1,1" ShowGridLines="0,0" ShowNumbers="1,1" ShowAxes="1,1" Background="0,0,0,100">
+					<Graph ID="ResultsGraph" Size="800,600" Anchor="C,C" Offset="90,25" FontStyle="ButtonText14" Domain="-4000, -3960" Range="0,1000" TickInterval="250,500" NumberInterval="1000,2000" ShowTicks="1,1" ShowGridLines="0,0" ShowNumbers="1,1" ShowAxes="1,1" Background="0,0,0,100">
 						<Label Anchor="C,B" Offset="0,-25" Style="ButtonText20" ID="YearLabel" String="Year" Hidden="0"/>
-						<Label Anchor="L,C" Offset="-95, -40" Style="ButtonText20" ID="YLabel" String="Population" Hidden="0">
 					</Graph>
-					<Stack ID="graph_selection_stack" StackGrowth="Down" Padding="50" Anchor="R,B" Offset="-110, 80">
+					<Stack ID="graph_selection_stack" StackGrowth="Down" Padding="50" Anchor="R,B" Offset="0, 170" Hidden="1">
 						<GridButton ID="show_pop_graph" Anchor="C,T" Style="RoundedButton" String="Population" Size="110,27"/>
 						<GridButton ID="show_mil_graph" Anchor="C,T" Style="RoundedButton" String="Soldiers" Size="110,27"/>
 						<GridButton ID="show_crop_graph" Anchor="C,T" Style="RoundedButton" String="Crop Yield" Size="110,27"/>
@@ -26,7 +86,6 @@
 						<GridButton ID="show_land_graph" Anchor="C,T" Style="RoundedButton" String="Land" Size="110,27"/>
 						<GridButton ID="show_goods_graph" Anchor="C,T" Style="RoundedButton" String="Goods" Size="110,27"/>
 					</Stack>
-				<!--<PullDown  Anchor="C,T" Style="PullDownBlue" Size="720,24" Offset="90,12" ID="GraphDataSetPulldown" />-->
 			</Container>
 
 			<Image	Anchor="C,T" Size="parent,44" Color="61,112,154,255"	Texture="Controls_Gradient_HalfRadial"  />
