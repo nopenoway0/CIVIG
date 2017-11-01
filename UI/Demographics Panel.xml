@@ -3,125 +3,173 @@
 <!-- Author: Benji -->
 <!-- DateCreated: 10/27/2017 1:37:49 AM <Label String="Demographic"></Label>-->
 <Context ID="D_BOX">
+
+	<Instance Name="DemographicsButtonInstance">
+    	<GridButton ID="demo_button" Style="RoundedButton" String="test add" Size="140,27"/>
+	</Instance>
+
+	<Instance Name="GraphLegendInstance" >
+		<Box Anchor="L,T" Size="168,30" Offset="14,0" Color="0,0,0,0" ID="GraphLegend">
+      		<CheckBox ID="ShowHide" Anchor="R,C" Offset="7,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
+      		<Image Anchor="L,C" Offset="4,0" Size="16,16" Texture="Controls_ItemContainer" Color="255,255,255,128" />
+			<Image Anchor="L,C" Offset="11,0" Size="14,19" Texture="Controls_LocationPip"  ID="LegendIcon"/>
+
+	      	<Grid  Texture="Controls_SubContainer4" Offset="0,0" Size="parent,parent" Anchor="L,T" SliceCorner="9,9" SliceSize="0,0" Color=" 0,0,0,45">
+			  	<Label Offset="29,0" String="America" Style="ButtonText14" Anchor="L,C" ID="LegendName" Hidden="0"/>
+	      	</Grid>
+			</Box>
+	</Instance>
+
 		<Container Style="FullScreenVignetteConsumer" />
+		
 		<Box ID = "Main" Anchor="C,C" Size="1024, 759"	Color="11,27,40,255" ConsumeMouse="1">
+			<Container ID="GraphPanel"  Anchor="C,C" Size="1024,parent" Offset="0,0">
+				<PullDown  Anchor="C,T" Style="PullDownBlue" Size="250,24" Offset="0,53" ID="GraphDataSetPulldown"/>
+
+				<ScrollPanel Anchor="L,T" AutoScrollBar="1" Size="180,parent-122" Vertical="1" ID="GraphLegendScrollPanel" Offset="-5,0" >
+					<ScrollBar Style="Slider_Light" Anchor="L,C" Offset="2,0"/>
+					<Stack Anchor="L,T" Offset="10,105" StackGrowth="Bottom" Padding="2" ID="GraphLegendStack"/>
+				</ScrollPanel>
+
+				<Grid  Anchor="C,C" Texture="Controls_SubContainer3" Offset="0,20" Size="parent-10,parent-50"  SliceCorner="20,20" SliceSize="0,0" Color="0,0,0,100">
+				<Grid  Texture="Controls_SubContainerFill" Size="parent,parent"  SliceCorner="11,11" SliceSize="0,0" Color="0,0,0,50"/>
+				<Image Texture="Controls_Deco3" Size="27,18" Anchor="L,T" Offset="18,16" Color=" 255,255,255,25"/>
+				<Image Texture="Controls_Deco3" Size="27,18" Anchor="R,T" Offset="18,16" Color=" 255,255,255,25"/>
+				</Grid>
+					<Graph ID="ResultsGraph" Size="800,600" Anchor="C,C" Offset="90,25" FontStyle="ButtonText14" Domain="-4000, -3960" Range="0,1000" TickInterval="250,500" NumberInterval="1000,2000" ShowTicks="1,1" ShowGridLines="0,0" ShowNumbers="1,1" ShowAxes="1,1" Background="0,0,0,100">
+						<Label Anchor="C,B" Offset="0,-25" Style="ButtonText20" ID="YearLabel" String="Year" Hidden="0"/>
+					</Graph>
+					<Stack ID="graph_selection_stack" StackGrowth="Down" Padding="50" Anchor="R,B" Offset="0, 170" Hidden="1">
+						<GridButton ID="show_pop_graph" Anchor="C,T" Style="RoundedButton" String="Population" Size="110,27"/>
+						<GridButton ID="show_mil_graph" Anchor="C,T" Style="RoundedButton" String="Soldiers" Size="110,27"/>
+						<GridButton ID="show_crop_graph" Anchor="C,T" Style="RoundedButton" String="Crop Yield" Size="110,27"/>
+						<GridButton ID="show_gnp_graph" Anchor="C,T" Style="RoundedButton" String="GNP" Size="110,27"/>
+						<GridButton ID="show_land_graph" Anchor="C,T" Style="RoundedButton" String="Land" Size="110,27"/>
+						<GridButton ID="show_goods_graph" Anchor="C,T" Style="RoundedButton" String="Goods" Size="110,27"/>
+					</Stack>
+			</Container>
+
 			<Image	Anchor="C,T" Size="parent,44" Color="61,112,154,255"	Texture="Controls_Gradient_HalfRadial"  />
 			<Grid Size="parent+9,parent+9" Anchor="C,C" Style="WindowFrameTopOnly"/>
-				<Label Style="FontFlair20"	String="DEMOGRAPHICS" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
-				<Grid Anchor="C,T" Offset="0,44"	Size="parent-6,8"	Style="Divider3Grid" />
 				<Button	ID="Close" Anchor="R,T" Offset="-3,-1"	Size="44,44" Texture="Controls_CloseLarge" />
-				<Stack StackGrowth="Down" Anchor="C,C" Offset="0, 55" Padding="0">
-					<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-					<Grid Offset="0,0"	Size="parent-6,110" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-					<Grid Offset="0,0"	Size="parent-6,110" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-					<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-					<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-					<Grid Offset="0,0"	Size="parent-6,115" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
-				</Stack>
-				<Stack Anchor="C,C" Offset="0,30" StackGrowth="Right" Padding="80">
-					<Stack StackGrowth="Down" Padding="88">
-						<Label ID="title" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Demographic"/>
-						<Label ID="population" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Population"/>
-						<Label ID="mil" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Soldiers"/>
-						<Label ID="crop_yield" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Crop Yield"/>
-						<Label ID="gnp" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="GNP"/>
-						<Label ID="land" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Land"/>
-						<Label ID="goods" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Goods"/>
+				<Grid Anchor="C,T" Offset="0,44"	Size="parent-6,8"	Style="Divider3Grid" />
+				<Label Style="FontFlair20"	String="DEMOGRAPHICS" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
+				<GridButton ID="graphs_button" Anchor="C,T" Style="RoundedButton" Offset="200,10" String="Graphs" Size="140,27"/>
+				<GridButton ID="info_button" Anchor="C,T" Style="RoundedButton" Offset="-200,10" String="Info" Size="140,27"/>
+				<Container Anchor="C,C" ID="InfoPanel" Hidden="1" >
+					<Stack StackGrowth="Down" Anchor="C,C" Offset="0, 55" Padding="0">
+						<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+						<Grid Offset="0,0"	Size="parent-6,110" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+						<Grid Offset="0,0"	Size="parent-6,110" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+						<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+						<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
+						<Grid Offset="0,0"	Size="parent-6,115" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
 					</Stack>
-					<Stack StackGrowth="Down" Padding="90">
-						<Label String="Rank" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Label ID="pop_rank" Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="mil_rank"  Style="ReportValueText" String="0" />
-						<Label ID="crop_rank" Style="ReportValueText" Color="Food" String="0" />
-						<Label ID="gnp_rank"  Style="ReportValueText" String="0"/>
-						<Label ID="land_rank"  Style="ReportValueText" Color="Food" String="0" />
-						<Label ID="goods_rank"  Style="ReportValueText" String="0" />
+					<Stack Anchor="C,C" Offset="0,30" StackGrowth="Right" Padding="80">
+						<Stack StackGrowth="Down" Padding="88">
+							<Label ID="title" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Demographic"/>
+							<Label ID="population" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Population"/>
+							<Label ID="mil" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Soldiers"/>
+							<Label ID="crop_yield" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Crop Yield"/>
+							<Label ID="gnp" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="GNP"/>
+							<Label ID="land" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Land"/>
+							<Label ID="goods" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Goods"/>
+						</Stack>
+						<Stack StackGrowth="Down" Padding="90">
+							<Label String="Rank" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label ID="pop_rank" Style="ReportValueText" Color="Food" String="0"/>
+							<Label ID="mil_rank"  Style="ReportValueText" String="0" />
+							<Label ID="crop_rank" Style="ReportValueText" Color="Food" String="0" />
+							<Label ID="gnp_rank"  Style="ReportValueText" String="0"/>
+							<Label ID="land_rank"  Style="ReportValueText" Color="Food" String="0" />
+							<Label ID="goods_rank"  Style="ReportValueText" String="0" />
+						</Stack>
+
+
+						<Stack StackGrowth="Down" Padding="90">
+							<Label String="Value" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label ID="pop_value" Style="ReportValueText" Color="Food" String="0"/>
+							<Label ID="mil_value"  Style="ReportValueText" String="0"/>
+							<Label ID="crop_value"  Style="ReportValueText" Color="Food" String="0"/>
+							<Label ID="gnp_value"  Style="ReportValueText" String="0"/>
+							<Label ID="land_value"  Style="ReportValueText" Color="Food" String="0"/>
+							<Label ID="goods_value" Style="ReportValueText" String="0"/>
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="31">
+							<Label String="Best" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="pop_best"  Style="ReportValueText" Color="Food" String="0"/>
+							</Stack>
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="mil_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="mil_best"  Style="ReportValueText" String="0" />
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="crop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="crop_best"  Style="ReportValueText" Color="Food" String="0" />
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="gnp_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="gnp_best"  Style="ReportValueText" String="0" />
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="land_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="land_best"  Style="ReportValueText" Color="Food" String="0" />
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="goods_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="goods_best"  Style="ReportValueText" String="0"/>
+							</Stack>
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="90">
+							<Label String="Average" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label ID="pop_average"  Style="ReportValueText" Color="Food" String="0"/>
+							<Label ID="mil_average"  Style="ReportValueText" String="0" />
+							<Label ID="crop_average" Style="ReportValueText"  Color="Food" String="0" />
+							<Label ID="gnp_average"  Style="ReportValueText" String="0" />
+							<Label ID="land_average"  Style="ReportValueText" Color="Food" String="0" />
+							<Label ID="goods_average" Style="ReportValueText"  String="0" />
+						</Stack>
+
+						<Stack StackGrowth="Down" Padding="31">
+							<Label String="Worst" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="pop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="pop_worst"  Style="ReportValueText" Color="Food" String="0"/>
+							</Stack>
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="mil_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="mil_worst"  Style="ReportValueText" String="0"/>
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="crop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="crop_worst" Style="ReportValueText" Color="Food" String="0" />
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="gnp_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="gnp_worst"  Style="ReportValueText" String="0"/>
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="land_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="land_worst"  Style="ReportValueText" Color="Food" String="0"/>
+							</Stack>
+
+							<Stack StackGrowth="Down" Padding="15">
+								<Image ID="goods_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
+								<Label ID="goods_worst"  Style="ReportValueText" String="0"/>
+							</Stack>
+						</Stack>		
 					</Stack>
-
-
-					<Stack StackGrowth="Down" Padding="90">
-						<Label String="Value" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Label ID="pop_value" Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="mil_value"  Style="ReportValueText" String="0"/>
-						<Label ID="crop_value"  Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="gnp_value"  Style="ReportValueText" String="0"/>
-						<Label ID="land_value"  Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="goods_value" Style="ReportValueText" String="0"/>
-					</Stack>
-
-					<Stack StackGrowth="Down" Padding="31">
-						<Label String="Best" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="pop_best"  Style="ReportValueText" Color="Food" String="0"/>
-						</Stack>
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="mil_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="mil_best"  Style="ReportValueText" String="0" />
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="crop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="crop_best"  Style="ReportValueText" Color="Food" String="0" />
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="gnp_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="gnp_best"  Style="ReportValueText" String="0" />
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="land_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="land_best"  Style="ReportValueText" Color="Food" String="0" />
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="goods_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="goods_best"  Style="ReportValueText" String="0"/>
-						</Stack>
-					</Stack>
-
-					<Stack StackGrowth="Down" Padding="90">
-						<Label String="Average" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Label ID="pop_average"  Style="ReportValueText" Color="Food" String="0"/>
-						<Label ID="mil_average"  Style="ReportValueText" String="0" />
-						<Label ID="crop_average" Style="ReportValueText"  Color="Food" String="0" />
-						<Label ID="gnp_average"  Style="ReportValueText" String="0" />
-						<Label ID="land_average"  Style="ReportValueText" Color="Food" String="0" />
-						<Label ID="goods_average" Style="ReportValueText"  String="0" />
-					</Stack>
-
-					<Stack StackGrowth="Down" Padding="31">
-						<Label String="Worst" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="pop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="pop_worst"  Style="ReportValueText" Color="Food" String="0"/>
-						</Stack>
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="mil_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="mil_worst"  Style="ReportValueText" String="0"/>
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="crop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="crop_worst" Style="ReportValueText" Color="Food" String="0" />
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="gnp_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="gnp_worst"  Style="ReportValueText" String="0"/>
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="land_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="land_worst"  Style="ReportValueText" Color="Food" String="0"/>
-						</Stack>
-
-						<Stack StackGrowth="Down" Padding="15">
-							<Image ID="goods_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
-							<Label ID="goods_worst"  Style="ReportValueText" String="0"/>
-						</Stack>
-					</Stack>		
-				</Stack>
+				</Container>
 		</Box>
 </Context>
