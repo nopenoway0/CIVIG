@@ -13,6 +13,7 @@ local goods_graphs = {}
 local crops_graphs = {}
 local land_graphs = {}
 local graph_maxes = {}
+
 local function YearToNumber(input)
 	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
 	if input:find("BC") then
@@ -40,7 +41,7 @@ local function LoadData(player)
 	local prefix = tostring(player:GetID()) .. "_"
 	for x,z in pairs(years) do
 		data = {}
-		print("loading from ", tonumber(z))
+		--print("loading from ", tonumber(z))
 		data["year"] = tonumber(z)
 		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
 		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
@@ -249,7 +250,7 @@ local function GetSuffix(input)
 	input = math.ceil(input)
 	input = input / 100
 
-	print("after round: ", input)
+	--print("after round: ", input)
 	result[0] = input
 	result[1] = suffix
 	return result
@@ -275,7 +276,7 @@ local function UpdateField(field)
 		return 0
 	end
 
-	print("getting demographics")
+	--print("getting demographics")
 	local rank = 1
 	local average = 0
 	local worst = 0
@@ -321,7 +322,6 @@ local function UpdateField(field)
 		Controls.pop_rank:SetText(tostring(result[0]) .. result[1])
 		result = GetSuffix(worst)
 		Controls.pop_worst:SetText(tostring(result[0]) .. result[1])
-		SetIcon(Controls.pop_worst_icon, civ_id["worst"])
 		result = GetSuffix(best)
 		Controls.pop_best:SetText(tostring(result[0]) .. result[1])
 		result = GetSuffix(average)
@@ -394,13 +394,14 @@ local function UpdateField(field)
 		return 0
 	end	
 
-
 	if worst == best then
 		SetIcon(control_best, "none")
 		SetIcon(control_worst, "none")
 	else
-		SetIcon(control_best, civ_id["best"])
-		SetIcon(control_worst, civ_id["worst"])
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id["best"]) or human_id == civ_id["best"] then SetIcon(control_best, civ_id["best"])
+		else SetIcon(control_best, "none") end
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id["worst"]) or human_id == civ_id["worst"] then SetIcon(control_worst, civ_id["worst"])
+		else SetIcon(control_worst, "none") end
 	end
 end
 
@@ -419,11 +420,15 @@ function ClosePanel()
 end
 
 local function ShowGraph()
-	Controls.ResultsGraph:SetHide(false)
 	Controls.InfoPanel:SetHide(true)
+	Controls.ResultsGraph:SetHide(false)
+	Controls.GraphDataSetPulldown:SetHide(false)
+	Controls.Graph_Legend:SetHide(false)
 end
 
 local function ShowInfoPanel()
+	Controls.GraphDataSetPulldown:SetHide(true)
+	Controls.Graph_Legend:SetHide(true)
 	Controls.ResultsGraph:SetHide(true)
 	Controls.InfoPanel:SetHide(false)
 end
@@ -460,7 +465,7 @@ local function ShowMilGraph()
 	local number_interval = math.ceil(graph_maxes["mil"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.YLabel:SetText("Soldiers")
+	Controls.GraphDataSetPulldown:GetButton():SetText("Soldiers")	
 end
 
 local function ShowPopGraph()
@@ -478,7 +483,7 @@ local function ShowPopGraph()
 	local number_interval = math.ceil(graph_maxes["pop"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.YLabel:SetText("Pop.")
+	Controls.GraphDataSetPulldown:GetButton():SetText("Population")
 end
 
 local function ShowYieldGraph()
@@ -496,7 +501,7 @@ local function ShowYieldGraph()
 	local number_interval = math.ceil(graph_maxes["crops"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.YLabel:SetText("Crop Yield")
+	Controls.GraphDataSetPulldown:GetButton():SetText("Crop Yield")
 end
 
 local function ShowGNPGraph()
@@ -514,7 +519,7 @@ local function ShowGNPGraph()
 	local number_interval = math.ceil(graph_maxes["gnp"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.YLabel:SetText("GNP")
+	Controls.GraphDataSetPulldown:GetButton():SetText("GNP")
 end
 
 local function ShowLandGraph()
@@ -532,7 +537,7 @@ local function ShowLandGraph()
 	local number_interval = math.ceil(graph_maxes["land"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(math.ceil(graph_maxes["land"] / 4))
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.YLabel:SetText("Land")
+	Controls.GraphDataSetPulldown:GetButton():SetText("Land")
 end
 
 local function ShowGoodsGraph()
@@ -547,9 +552,9 @@ local function ShowGoodsGraph()
 		end
 	end
 	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["goods"] * 1.1))
-	local number_interval = math.ceil(graph_maxes["crops"] / 4)
+	local number_interval = math.ceil(graph_maxes["goods"] / 4)
 	Controls.ResultsGraph:SetYNumberInterval(math.ceil(graph_maxes["goods"] / 4))
-	Controls.YLabel:SetText("Goods")
+	Controls.GraphDataSetPulldown:GetButton():SetText("Goods")
 end
 
 local function UpdateGraph()
@@ -557,16 +562,16 @@ local function UpdateGraph()
 	years["start"] = start_year
 	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))
 
-	print("start year: ", years["start"])
-	print("current year: ", years["current"])
+	--print("start year: ", years["start"])
+	--print("current year: ", years["current"])
 
 	-- set year and intervals constant for all graphs
 	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
 	local number_interval = {}
 	number_interval["x"] = math.ceil((math.abs(years["start"]) - (years["current"] * -1)) / 10) -- need to modify for when the year turns to ad
-	print("setting x interval to ", number_interval["x"])
+	--print("setting x interval to ", number_interval["x"])
 	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
-	print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
+	--print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
 	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
 	-- constant for all graphs end
 	local data = nil
@@ -631,7 +636,7 @@ local function UpdateGraph()
 			worst = 10000000
 			for x,z in pairs(data) do
 				for i, j in pairs(z) do
-					print("i: ", i, "j: ", j)
+					--print("i: ", i, "j: ", j)
 
 					if best < tonumber(j) then
 						best = tonumber(j)
@@ -640,7 +645,7 @@ local function UpdateGraph()
 					if(i == "pop") then
 						--local tmp : number = tonumber(z["year"])
 						--local tmp2: number = tonumber(j)
-						print("inserting point: year, pop - (", tonumber(z["year"]), ", ", tonumber(j), ")")
+						--print("inserting point: year, pop - (", tonumber(z["year"]), ", ", tonumber(j), ")")
 						population_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
 						if tonumber(j) > graph_maxes["pop"] then
 							graph_maxes["pop"] = tonumber(j)
@@ -707,16 +712,20 @@ function OpenPanel()
 	-- add sound effects here
 	context_store:SetHide(false)
 	ShowInfoPanel()
+	local start_time = os.time()
 	UpdatePanel()
 	UpdateGraph() -- just for tests, move to button
+	local end_time = os.time()
+	print("generation of panel and graphs: ", (end_time -start_time) / 1000.0, "s")
 end
 
 local function StoreAllData()
+	local start_time = os.time()
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then 
 			local data = GetData(p)
 			for x, z in pairs(data) do
-				print("storing key: ", x, " with value: ", z)
+				--print("storing key: ", x, " with value: ", z)
 				GameConfiguration.SetValue(x, z)
 			end
 		end
@@ -726,9 +735,11 @@ local function StoreAllData()
 		GameConfiguration.SetValue("year_sequence", tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
 	else
 		GameConfiguration.SetValue("year_sequence", sequence .. "_" .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
-		print("current year_sequence: ", sequence ..tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
+		--print("current year_sequence: ", sequence ..tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
 		-- add check for duplicate year?
 	end
+	local end_time = os.time()
+	print("store time: ", (end_time - start_time) / 1000.0, "s")
 end
 
 -- add cache so it's not loading all data everytime
@@ -758,8 +769,28 @@ function Init()
 	Controls.show_goods_graph:RegisterCallback(Mouse.eLClick, ShowGoodsGraph)
 	Controls.show_crop_graph:RegisterCallback(Mouse.eLClick, ShowYieldGraph)
 
+	-- build pulldown
+	local labels = {"Popluation", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"}
+	local pulldown = Controls.GraphDataSetPulldown
 
+	local function DetermineFunction(input)
+		if input == "Popluation" then return ShowPopGraph
+		elseif input == "Soldiers" then return ShowMilGraph 
+		elseif input == "Crop Yield" then return ShowYieldGraph 
+		elseif input == "GNP" then return ShowGNPGraph
+		elseif input == "Land" then return ShowLandGraph
+		elseif input == "Goods" then return ShowGoodsGraph 
+		else return 0
+		end
+	end
 
+	for i, l in pairs(labels) do
+		local entry = {}
+		pulldown:BuildEntry("InstanceOne", entry)
+		entry.Button:SetText(l)
+		entry.Button:RegisterCallback(Mouse.eLClick, DetermineFunction(l))
+	end
+	pulldown:CalculateInternals()
 
 	context_store:SetHide(true)
 	local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
