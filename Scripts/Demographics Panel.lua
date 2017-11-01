@@ -460,6 +460,8 @@ local function GetInterval(low, high)
 	local total = nil
 	if low < 0 then
 		total = math.abs(math.abs(low) - high * -1)
+	elseif low > 0 then
+		total = high - low
 	else
 		total = low + high
 	end
