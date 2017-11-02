@@ -5,6 +5,8 @@
 include("SupportFunctions")
 include("InstanceManager")
 
+-- data is stored in the following fashion:
+-- 
 
 local human_id = nil
 local start_year :number = nil
@@ -19,7 +21,10 @@ local graph_maxes = {}
 local graph_legend = nil
 local button_instance_manager = nil
 local current_graph_field = nil
+local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change population_graphs to pop_graphs | initialized in init
 local graphs_enabled = {}
+
+-- Convert year to number format. BC converts the number into negative
 local function YearToNumber(input)
 	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
 	if input:find("BC") then
@@ -28,17 +33,20 @@ local function YearToNumber(input)
 	return output
 end
 
+--[[Determines of the player is valid. A player is valid IF that player exists
+	and that player is a major civ. Civ states are not considered valid players in this mode
+]]
 local function IsValidPlayer(player)
 	if player == nil then return false end
-	--if player:IsAlive() ~= true then return false end
-	--if player:GetID() < 0 then return false end
 	if player:IsMajor() == false then return false end 
 	return true
 end
 
+--[[ Load the data relevant to the inputted player
+]]
 local function LoadData(player)
 	if IsValidPlayer(player) == false then return -1 end
-	local sequence :string = GameConfiguration.GetValue("year_sequence")
+	local sequence :string = GameConfiguration.GetValue("year_sequence") -- in order to make sure all data is retrieved the year sequence must be retrieved
 	local years = {}
 	local data = {}
 	local complete_data = {}
@@ -47,7 +55,7 @@ local function LoadData(player)
 	local prefix = tostring(player:GetID()) .. "_"
 	for x,z in pairs(years) do
 		data = {}
-		--print("loading from ", tonumber(z))
+		-- use fixed names in global variable
 		data["year"] = tonumber(z)
 		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
 		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
@@ -55,7 +63,7 @@ local function LoadData(player)
 		data["crop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_CROP")
 		data["land"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_LAND")
 		data["goods"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GOODS")
-		table.insert(complete_data, data)
+		table.insert(complete_data, data) -- store the current years data into the complete data table
 	end
 
 	return complete_data
@@ -74,6 +82,9 @@ local function Load(key)
 	return value
 end
 
+--[[ Gets icon for that civilization. anything aside from a number will set the icon to the civilization
+	unknown emblem
+]]
 function SetIcon(control, id)
 	local icon = "ICON_"
 	if type(id) == "number" then
@@ -86,6 +97,9 @@ function SetIcon(control, id)
 	control:SetIcon(icon)
 end
 
+--[[Get "real" land owned by that player. This is done by retrieving the total number of tiles the player owns
+	and then multiplying these tiles by 10,000
+]]
 local function GetLand(player)
 	local size = 0
 	if IsValidPlayer(player) then
@@ -101,7 +115,9 @@ local function GetLand(player)
 	return size * 10000
 end
 
---[[Get real military might for player]]
+--[[Get real military might for player
+	might = sqrt(military_strength)*2000
+]]
 local function GetMight(player)
 	if IsValidPlayer(player) == false then return 0 end
 	local might = player:GetStats():GetMilitaryStrength()
@@ -110,7 +126,9 @@ local function GetMight(player)
 end
 
 --[[Get total population of player's empire.
-	return total population]]
+	return total population. The population is retrieved from each city and put into
+	the following formula: 1000*population^2.8 then added to the rest of the population
+]]
 local function GetPop(player)
 	if IsValidPlayer(player) == false then return 0 end
 	local cities = player:GetCities()
@@ -124,10 +142,17 @@ local function GetPop(player)
 	return population
 end
 
+--[[
+	Not currently used. Should get name of the player passed in. May be used in the future
+	for easy localization
+]]
 local function GetName(player)
 	return "placeholder"
 end
 
+--[[
+	Get goods. The sum of all production of the player's cities
+]]
 local function GetGoods(player)
 	local goods = 0
 	if IsValidPlayer(player) == false then return 0 end
@@ -137,6 +162,8 @@ local function GetGoods(player)
 	return goods
 end
 
+--[[ Get a table consisting of all players goods results
+]]
 local function GetGoodsDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
@@ -182,6 +209,8 @@ local function GetMilitaryMight()
 	return m_might
 end
 
+--[[ Get a table of all land values for each player
+]]
 local function GetLandAll()
 	local land = {}
 	for x, p in pairs(Players) do
@@ -192,7 +221,8 @@ local function GetLandAll()
 	return land
 end
 
-
+--[[Sum of all cities' yields
+]]
 local function GetCropYield(player)
 	-- get crop yield of player
 	local total_yield = 0
@@ -203,6 +233,8 @@ local function GetCropYield(player)
 	return total_yield
 end
 
+--[[ Table of all players yields
+]]
 local function GetCropYieldAll()
 	local demographics = {}
 	for k, p in pairs(Players) do
@@ -215,6 +247,8 @@ local function GetCropYieldAll()
 	return demographics
 end
 
+--[[ Players gold yield
+]]
 local function GetGNP(player)
 	local GNP = 0
 	if IsValidPlayer(player) then
@@ -223,6 +257,8 @@ local function GetGNP(player)
 	return GNP
 end
 
+--[[ Table of all players Gold yield
+]]
 local function GetGNPAll()
 	local gnp = {}
 	for x, p in pairs(Players) do
@@ -233,6 +269,8 @@ local function GetGNPAll()
 	return gnp
 end
 
+--[[ Get suffix of inputted number. e.g. 1000 = k and the result after division 1000 = 1
+]]
 local function GetSuffix(input)
 	local billion = 1000000000
 	local million = 1000000
@@ -262,6 +300,8 @@ local function GetSuffix(input)
 	return result
 end
 
+--[[ Updates corresponding field in the rankings panel
+]]
 local function UpdateField(field)
 	-- place holder to reduce redundant code use flags
 	local demographics = nil
@@ -320,7 +360,8 @@ local function UpdateField(field)
 	worst = math.floor(worst)
 	best = math.floor(best)
 	local value = math.floor(demographics[human_id])
-	-- Set all population fields
+	-- Set field according to input TODO: change input to match the tables so it can be reused
+	-- and makes it easy to iterate tables
 	if(field == "population") then 
 		result = GetSuffix(value)
 		Controls.pop_value:SetText(tostring(result[0]) .. result[1])
@@ -400,6 +441,7 @@ local function UpdateField(field)
 		return 0
 	end	
 
+	-- if worst is the best, there is no best or worst. Set to question mark. Else set the icon according to the player id
 	if worst == best then
 		SetIcon(control_best, "none")
 		SetIcon(control_worst, "none")
@@ -421,10 +463,12 @@ function UpdatePanel()
 	UpdateField("crop_yield")
 end
 
+--[[ Closes everything in this context]]
 function ClosePanel()
 	ContextPtr:SetHide(true)
 end
 
+-- displays graph, legend, and pulldown. Hides the info panel
 local function ShowGraph()
 	Controls.InfoPanel:SetHide(true)
 	Controls.ResultsGraph:SetHide(false)
@@ -432,6 +476,7 @@ local function ShowGraph()
 	Controls.GraphLegendStack:SetHide(false)
 end
 
+-- Hide graph, legend, and pulldown. displays the info panel
 local function ShowInfoPanel()
 	Controls.GraphDataSetPulldown:SetHide(true)
 	Controls.GraphLegendStack:SetHide(true)
@@ -439,6 +484,8 @@ local function ShowInfoPanel()
 	Controls.InfoPanel:SetHide(false)
 end
 
+-- retrieve data for the corresponding player. Constructs the same key using the player id and year
+-- as when storing was used
 local function GetData(player)
 	if IsValidPlayer(player) == false then return -1 end
 	local data = {}
@@ -456,6 +503,7 @@ local function GetData(player)
 	return data
 end
 
+-- calculate numberinterval of the graph
 local function GetInterval(low, high)
 	local total = nil
 	if low < 0 then
@@ -471,6 +519,8 @@ local function GetInterval(low, high)
 	return number_interval
 end
 
+-- display the soldiers graph. must make sure that for the corresponding player, the checkbox enables
+-- the lines to be shown
 local function ShowMilGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
@@ -491,6 +541,7 @@ local function ShowMilGraph()
 	current_graph_field = "mil"	
 end
 
+-- same as soldiers graph for population
 local function ShowPopGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
@@ -511,6 +562,7 @@ local function ShowPopGraph()
 	current_graph_field = "pop"	
 end
 
+-- same as soldiers graph for crop yield
 local function ShowYieldGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
@@ -531,6 +583,7 @@ local function ShowYieldGraph()
 	current_graph_field = "crop"	
 end
 
+-- same as soldiers graph for gnp
 local function ShowGNPGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
@@ -551,6 +604,7 @@ local function ShowGNPGraph()
 	current_graph_field = "gnp"	
 end
 
+-- same as soldiers graph for land
 local function ShowLandGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
@@ -571,6 +625,7 @@ local function ShowLandGraph()
 	current_graph_field = "land"	
 end
 
+-- same as soldiers graph for land
 local function ShowGoodsGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
@@ -591,6 +646,8 @@ local function ShowGoodsGraph()
 	current_graph_field = "goods"	
 end
 
+--[[ creates/or updates the graph legends
+]]
 local function UpdateLegend()
 	graph_legend:ResetInstances()
 	for x, p in pairs(Players) do 
@@ -598,7 +655,7 @@ local function UpdateLegend()
 			local instance = graph_legend:GetInstance()
 			if Players[human_id]:GetDiplomacy():HasMet(p:GetID()) or human_id == p:GetID() then
 				local color = PlayerConfigurations[p:GetID()]:GetColor()
-				--SetIcon(instance.LegendIcon, p:GetID())
+				--SetIcon(instance.LegendIcon, p:GetID()) civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
 				population_graphs[p:GetID()]:SetColor(color)
 				mil_graphs[p:GetID()]:SetColor(color)
@@ -609,7 +666,7 @@ local function UpdateLegend()
 				instance.LegendIcon:SetColor(color)
 			else
 				SetIcon(instance.LegendIcon, "none")
-				instance.LegendName:SetText("Undiscovered")
+				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
 			end
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
 				if bCheck then
@@ -634,6 +691,7 @@ local function UpdateLegend()
 	end
 end
 
+-- Draw graph from scratch TODO: find way to cache resutls so the graph doesn't need to be remade
 local function UpdateGraph()
 	local years = {}
 	years["start"] = start_year
@@ -645,12 +703,9 @@ local function UpdateGraph()
 	-- set year and intervals constant for all graphs
 	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
 	local number_interval = {}
-	number_interval["x"] = GetInterval(years["start"], years["current"]) -- need to modify for when the year turns to ad
-	print("setting x interval to ", number_interval["x"])
+	number_interval["x"] = GetInterval(years["start"], years["current"])
 	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
 	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
-	--print("setting x tick interval to ", math.floor(number_interval["x"] / 4))
-	-- constant for all graphs end
 	local data = nil
 	
 	local best = 0
@@ -703,7 +758,7 @@ local function UpdateGraph()
 		end
 	end
 	
-	local range_pop = {}
+	local range_pop = {} -- can remove this, need to make sure it works without
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then
 			data = LoadData(p)
@@ -718,9 +773,6 @@ local function UpdateGraph()
 					end
 
 					if(i == "pop") then
-						--local tmp : number = tonumber(z["year"])
-						--local tmp2: number = tonumber(j)
-						--print("inserting point: year, pop - (", tonumber(z["year"]), ", ", tonumber(j), ")")
 						population_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
 						if tonumber(j) > graph_maxes["pop"] then
 							graph_maxes["pop"] = tonumber(j)
@@ -795,13 +847,13 @@ function OpenPanel()
 	print("generation of panel and graphs: ", (end_time -start_time) / 1000.0, "s")
 end
 
+-- Store data for all players
 local function StoreAllData()
 	local start_time = os.time()
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then 
 			local data = GetData(p)
 			for x, z in pairs(data) do
-				--print("storing key: ", x, " with value: ", z)
 				GameConfiguration.SetValue(x, z)
 			end
 		end
@@ -811,8 +863,6 @@ local function StoreAllData()
 		GameConfiguration.SetValue("year_sequence", tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
 	else
 		GameConfiguration.SetValue("year_sequence", sequence .. "_" .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
-		--print("current year_sequence: ", sequence ..tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))))
-		-- add check for duplicate year?
 	end
 	local end_time = os.time()
 	print("store time: ", (end_time - start_time) / 1000.0, "s")
@@ -824,6 +874,7 @@ local function LoadAllData()
 end
 
 -- change in case of multiplayers or hotseat
+-- Intialize necessary variables and UI
 function Init()
 	print("load completed start initizialization")
 	for i, j in pairs(Players) do
@@ -833,6 +884,7 @@ function Init()
 		if IsValidPlayer(j) then graphs_enabled[j:GetID()] = true end
 	end
 
+	graph_types = {"land", "pop", "mil", "crop", "gnp", "goods"} -- set global graph names/types
 
 	start_year = GameConfiguration.GetStartYear()
 	context_store = ContextPtr
@@ -851,9 +903,10 @@ function Init()
 
 
 	-- build pulldown
-	local labels = {"Popluation", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"}
+	local labels = {"Popluation", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
 	local pulldown = Controls.GraphDataSetPulldown
 
+	-- return appropriate function to be used in pulldown
 	local function DetermineFunction(input)
 		if input == "Popluation" then return ShowPopGraph
 		elseif input == "Soldiers" then return ShowMilGraph 
@@ -865,19 +918,20 @@ function Init()
 		end
 	end
 
+	-- create pulldown
 	for i, l in pairs(labels) do
 		local entry = {}
 		pulldown:BuildEntry("InstanceOne", entry)
 		entry.Button:SetText(l)
 		entry.Button:RegisterCallback(Mouse.eLClick, DetermineFunction(l))
 	end
-	pulldown:CalculateInternals()
+	pulldown:CalculateInternals() -- set appropriate size
 
 	context_store:SetHide(true)
 	local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
 	top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
 
-	-- compatability testing
+	-- compatability testing. Currently doesn't work
 	--local panel_test = ContextPtr:LookUpControl("/InGame/TopPanel")
 	--button_instance_manager = InstanceManager:new("DemographicsButtonInstance", "demo_button", panel_test.InfoStack)
 	--button_instance_manager:ResetInstances()
@@ -885,5 +939,6 @@ function Init()
 	--button_instance.Button:SetHide(false)
 end
 
+-- Set proper events and functions
 Events.LoadGameViewStateDone.Add(Init)
-Events.TurnEnd.Add(StoreAllData)
+Events.TurnEnd.Add(StoreAllData) -- TODO should be moved to init
