@@ -342,17 +342,19 @@ local function UpdateField(field)
 	worst = tmp
 	for i, j in pairs(demographics) do
 		if i >= 0 then
-			if j > tmp then rank = rank + 1 end
-			if j < worst then 
-				worst = j
-				civ_id["worst"] = i
+			if Players[i]:IsAlive() then
+				if j > tmp then rank = rank + 1 end
+				if j < worst then 
+					worst = j
+					civ_id["worst"] = i
+				end
+				if j > best then 
+					best = j
+					civ_id["best"] = i
+				end
+				average = average + j
+				count = count + 1
 			end
-			if j > best then 
-				best = j
-				civ_id["best"] = i
-			end
-			average = average + j
-			count = count + 1
 		end
 	end
 
@@ -654,16 +656,16 @@ local function UpdateLegend()
 		if IsValidPlayer(p) then
 			local instance = graph_legend:GetInstance()
 			if Players[human_id]:GetDiplomacy():HasMet(p:GetID()) or human_id == p:GetID() then
-				local color = PlayerConfigurations[p:GetID()]:GetColor()
+				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
 				--SetIcon(instance.LegendIcon, p:GetID()) civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
-				population_graphs[p:GetID()]:SetColor(color)
-				mil_graphs[p:GetID()]:SetColor(color)
-				gnp_graphs[p:GetID()]:SetColor(color)
-				goods_graphs[p:GetID()]:SetColor(color)
-				crops_graphs[p:GetID()]:SetColor(color)
-				land_graphs[p:GetID()]:SetColor(color)
-				instance.LegendIcon:SetColor(color)
+				population_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				crops_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				land_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
 			else
 				SetIcon(instance.LegendIcon, "none")
 				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
