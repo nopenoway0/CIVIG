@@ -265,15 +265,21 @@ local function GetSuffix(input)
 	local suffix = {billion = "B", million = "M", thousand = "K"}
 	local result = {}
 
+	local function input_operation(inp, divisor, n)
+		print("in input function ", inp)
+		result[1] = suffix[n]
+		inp = inp / divisor
+		return inp
+	end
+
 	if input < values.thousand then
 		result[1] = ""
 	else
-		for n, v in pairs(values) do
-			if input > v then
-				result[1] = suffix[n]
-				input = input / v
-				break
-			end
+		if input > values.billion then input = input_operation(input, values.billion, "billion")
+		elseif input > values.million then input = input_operation(input, values.million, "million")
+		elseif input >= values.thousand then input = input_operation(input, values.thousand, "thousand")
+		else
+			input = 0
 		end
 	end
 
@@ -291,7 +297,7 @@ local function UpdateField(field)
 	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
 	local demographics = nil
 
-	print("picking functions according to ", field)
+	--print("picking functions according to ", field)
 	if demographics_functions[field] then
 		demographics = demographics_functions[field]()
 	else
@@ -344,9 +350,13 @@ local function UpdateField(field)
 		SetIcon(icons.best, "none")
 		SetIcon(icons.worst, "none")
 	else
-		if Players[human_id]:GetDiplomacy():HasMet(civ_id.best) or human_id == civ_id.best then SetIcon(icons.best, civ_id.best)
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id.best) or human_id == civ_id.best then 
+			SetIcon(icons.best, civ_id.best)
+			icons.best:SetToolTipString(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[civ_id.best]:GetLeaderTypeName()].Name))
 		else SetIcon(icons.best, "none") end
-		if Players[human_id]:GetDiplomacy():HasMet(civ_id.worst) or human_id == civ_id.worst then SetIcon(icons.worst, civ_id.worst)
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id.worst) or human_id == civ_id.worst then 
+			SetIcon(icons.worst, civ_id.worst)
+			icons.worst:SetToolTipString(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[civ_id.worst]:GetLeaderTypeName()].Name))
 		else SetIcon(icons.worst, "none") end
 	end
 end
@@ -485,6 +495,7 @@ local function UpdateLegend()
 				crop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				land_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
+				print("setting the icon text with ", "TEST ME OUT")
 			else
 				SetIcon(instance.LegendIcon, "none")
 				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
@@ -554,7 +565,6 @@ local function UpdateGraph()
 						values.best = tonumber(j)
 					end
 
-					print("i: ", i, "j: ", j)
 					if(i ~= "year") then 
 						graph_list[i][p:GetID()]:AddVertex(tonumber(z.year), tonumber(j))					
 						if tonumber(j) > graph_maxes[i] then
@@ -614,7 +624,7 @@ end
 
 -- change in case of multiplayers or hotseat
 -- Intialize necessary variables and UI
-function Init()
+local function Init()
 	print("load completed start initizialization")
 	for i, j in pairs(Players) do
 		if j then
@@ -642,12 +652,12 @@ function Init()
 
 
 	-- build pulldown
-	local labels = {"Popluation", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
+	local labels = {"Population", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
 	local pulldown = Controls.GraphDataSetPulldown
 
 	-- return appropriate function to be used in pulldown
 	local function DetermineFunction(input)
-		if input == "Popluation" then return ShowPopGraph
+		if input == "Population" then return ShowPopGraph
 		elseif input == "Soldiers" then return ShowMilGraph 
 		elseif input == "Crop Yield" then return ShowYieldGraph 
 		elseif input == "GNP" then return ShowGNPGraph
