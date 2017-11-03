@@ -11,7 +11,7 @@ include("InstanceManager")
 local human_id = nil
 local start_year :number = nil
 local context_store = nil
-local population_graphs = {}
+local pop_graphs = {}
 local mil_graphs = {}
 local gnp_graphs = {}
 local goods_graphs = {}
@@ -21,7 +21,7 @@ local graph_maxes = {}
 local graph_legend = nil
 local button_instance_manager = nil
 local current_graph_field = nil
-local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change population_graphs to pop_graphs | initialized in init
+local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change pop_graphs to pop_graphs | initialized in init
 local graphs_enabled = {}
 
 -- Convert year to number format. BC converts the number into negative
@@ -46,6 +46,7 @@ end
 ]]
 local function LoadData(player)
 	if IsValidPlayer(player) == false then return -1 end
+	local suffixes = {pop = "_POP", mil = "_MIL", gnp="_GNP", crop="_CROP", land="_LAND", goods="_GOODS"} -- create suffixes and indices for loop
 	local sequence :string = GameConfiguration.GetValue("year_sequence") -- in order to make sure all data is retrieved the year sequence must be retrieved
 	local years = {}
 	local data = {}
@@ -55,14 +56,12 @@ local function LoadData(player)
 	local prefix = tostring(player:GetID()) .. "_"
 	for x,z in pairs(years) do
 		data = {}
-		-- use fixed names in global variable
+		-- store year into table and then each corresponding field with proper suffix according to
+		-- the suffixes table
 		data["year"] = tonumber(z)
-		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
-		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
-		data["gnp"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GNP")
-		data["crop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_CROP")
-		data["land"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_LAND")
-		data["goods"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GOODS")
+		for k, s in pairs(suffixes) do 
+			data[k] = GameConfiguration.GetValue(prefix .. tostring(z) .. s)
+		end
 		table.insert(complete_data, data) -- store the current years data into the complete data table
 	end
 
@@ -119,7 +118,7 @@ end
 	might = sqrt(military_strength)*2000
 ]]
 local function GetMight(player)
-	if IsValidPlayer(player) == false or player:IsAlive() == false then return 0 end
+	if IsValidPlayer(player) == false or player:IsAlive() == false then return 0 end -- if player is dead or not a valid civ, return 0 might
 	local might = player:GetStats():GetMilitaryStrength()
 	might = math.sqrt(might) * 2000
 	return might
@@ -133,6 +132,7 @@ local function GetPop(player)
 	if IsValidPlayer(player) == false then return 0 end
 	local cities = player:GetCities()
 	if(cities == nil) then return 0 end
+
 	local population = 0
 	for i, c in cities:Members() do
 		if c then
@@ -167,11 +167,8 @@ end
 local function GetGoodsDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
-		if IsValidPlayer(p) then
-			if p:GetID() >= 0 and p:IsAlive() then
-				demographics[p:GetID()] = GetGoods(p)
-			end
-
+		if IsValidPlayer(p) and p:IsAlive() then
+			demographics[p:GetID()] = GetGoods(p)
 		end
 	end
 	return demographics
@@ -182,15 +179,10 @@ end
 local function GetDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
-		if p then
-			if IsValidPlayer(p) then
+		if IsValidPlayer(p) and p:IsAlive() then			
 				local pop = GetPop(p)
 				pop = math.ceil(pop)
-				if p:GetID() >= 0 and p:IsAlive() then
-					demographics[p:GetID()] = pop
-				end
-
-			end
+				demographics[p:GetID()] = pop
 		end
 	end
 	return demographics
@@ -200,10 +192,8 @@ end
 local function GetMilitaryMight()
 	local m_might = {}
 	for k, p in pairs(Players) do
-		if p then
-			if IsValidPlayer(p) then
+		if IsValidPlayer(p) then
 				m_might[p:GetID()] = GetMight(p)
-			end
 		end
 	end
 	return m_might
@@ -238,10 +228,8 @@ end
 local function GetCropYieldAll()
 	local demographics = {}
 	for k, p in pairs(Players) do
-		if p then
-			if IsValidPlayer(p) then
+		if IsValidPlayer(p) then
 				demographics[p:GetID()] = GetCropYield(p)
-			end
 		end
 	end
 	return demographics
@@ -272,31 +260,26 @@ end
 --[[ Get suffix of inputted number. e.g. 1000 = k and the result after division 1000 = 1
 ]]
 local function GetSuffix(input)
-	local billion = 1000000000
-	local million = 1000000
-	local thousand = 1000
-	local suffix = ""
+	local values = {billion = 1000000000, million = 1000000, thousand = 1000}
+	local suffix = {billion = "B", million = "M", thousand = "K"}
 	local result = {}
-	if input > billion then
-		suffix = "B"
-		input = input / billion
-	elseif input > million then
-		suffix = "M"
-		input = input / million
-	elseif input > thousand then
-		suffix = "K"
-		input = input / thousand
+
+	if input < values.thousand then
+		result[1] = ""
 	else
-		suffix = ""
+		for n, v in pairs(values) do
+			if input > v then
+				result[1] = suffix[n]
+				input = input / v
+				break
+			end
+		end
 	end
 
-	input = input * 100
-	input = math.ceil(input)
+	input = math.ceil(input * 100)
 	input = input / 100
-
-	--print("after round: ", input)
 	result[0] = input
-	result[1] = suffix
+	
 	return result
 end
 
@@ -526,7 +509,7 @@ end
 local function ShowMilGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
+			pop_graphs[z:GetID()]:SetVisible(false)
 			crops_graphs[z:GetID()]:SetVisible(false)
 			land_graphs[z:GetID()]:SetVisible(false)
 			gnp_graphs[z:GetID()]:SetVisible(false)
@@ -547,7 +530,7 @@ end
 local function ShowPopGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
+			pop_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
 			crops_graphs[z:GetID()]:SetVisible(false)
 			land_graphs[z:GetID()]:SetVisible(false)
 			gnp_graphs[z:GetID()]:SetVisible(false)
@@ -568,7 +551,7 @@ end
 local function ShowYieldGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
+			pop_graphs[z:GetID()]:SetVisible(false)
 			crops_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
 			land_graphs[z:GetID()]:SetVisible(false)
 			gnp_graphs[z:GetID()]:SetVisible(false)
@@ -589,7 +572,7 @@ end
 local function ShowGNPGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
+			pop_graphs[z:GetID()]:SetVisible(false)
 			crops_graphs[z:GetID()]:SetVisible(false)
 			land_graphs[z:GetID()]:SetVisible(false)
 			gnp_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
@@ -610,7 +593,7 @@ end
 local function ShowLandGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
+			pop_graphs[z:GetID()]:SetVisible(false)
 			crops_graphs[z:GetID()]:SetVisible(false)
 			land_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
 			gnp_graphs[z:GetID()]:SetVisible(false)
@@ -631,7 +614,7 @@ end
 local function ShowGoodsGraph()
 	for x,z in pairs(Players) do
 		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
+			pop_graphs[z:GetID()]:SetVisible(false)
 			crops_graphs[z:GetID()]:SetVisible(false)
 			land_graphs[z:GetID()]:SetVisible(false)
 			gnp_graphs[z:GetID()]:SetVisible(false)
@@ -659,7 +642,7 @@ local function UpdateLegend()
 				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
 				--SetIcon(instance.LegendIcon, p:GetID()) civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
-				population_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				pop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
@@ -673,7 +656,7 @@ local function UpdateLegend()
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
 				if bCheck then
 					if  current_graph_field == "mil" then mil_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "pop" then population_graphs[p:GetID()]:SetVisible(bCheck) 
+					elseif current_graph_field == "pop" then pop_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "crop" then crops_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "land" then land_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "gnp" then gnp_graphs[p:GetID()]:SetVisible(bCheck) 
@@ -682,7 +665,7 @@ local function UpdateLegend()
 				else
 					graphs_enabled[p:GetID()] = false
 					mil_graphs[p:GetID()]:SetVisible(false)
-					population_graphs[p:GetID()]:SetVisible(false)
+					pop_graphs[p:GetID()]:SetVisible(false)
 					crops_graphs[p:GetID()]:SetVisible(false)
 					land_graphs[p:GetID()]:SetVisible(false)
 					gnp_graphs[p:GetID()]:SetVisible(false)
@@ -724,10 +707,10 @@ local function UpdateGraph()
 
 	for i, p in pairs(Players)	do
 		if IsValidPlayer(p) then
-			if population_graphs[p:GetID()] then population_graphs[p:GetID()]:Clear() end
-			population_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
-			population_graphs[p:GetID()]:SetVisible(false)
-			population_graphs[p:GetID()]:SetWidth(2.0)
+			if pop_graphs[p:GetID()] then pop_graphs[p:GetID()]:Clear() end
+			pop_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
+			pop_graphs[p:GetID()]:SetVisible(false)
+			pop_graphs[p:GetID()]:SetWidth(2.0)
 
 			if mil_graphs[p:GetID()] then mil_graphs[p:GetID()]:Clear() end
 			mil_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_military")
@@ -775,7 +758,7 @@ local function UpdateGraph()
 					end
 
 					if(i == "pop") then
-						population_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						pop_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
 						if tonumber(j) > graph_maxes["pop"] then
 							graph_maxes["pop"] = tonumber(j)
 						end 
@@ -886,7 +869,7 @@ function Init()
 		if IsValidPlayer(j) then graphs_enabled[j:GetID()] = true end
 	end
 
-	graph_types = {"land", "pop", "mil", "crop", "gnp", "goods"} -- set global graph names/types
+	graph_types = {"pop", "mil", "gnp", "crop", "land", "goods"} -- set global graph names/types
 
 	start_year = GameConfiguration.GetStartYear()
 	context_store = ContextPtr
