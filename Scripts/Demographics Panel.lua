@@ -15,9 +15,10 @@ local pop_graphs = {}
 local mil_graphs = {}
 local gnp_graphs = {}
 local goods_graphs = {}
-local crops_graphs = {}
+local crop_graphs = {}
 local land_graphs = {}
 local graph_maxes = {}
+local graph_list = nil
 local graph_legend = nil
 local button_instance_manager = nil
 local current_graph_field = nil
@@ -385,14 +386,13 @@ local function GetData(player)
 	local data = {}
 	local prefix = tostring(player:GetID()) .. "_"
 	prefix = prefix .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))) .. "_"
-
+	local data_fields = {POP = GetPop, MIL = GetMight, GNP = GetGNP, CROP = GetCropYield, LAND = GetLand, GOODS = GetGoods}
 	-- get population
-	data[prefix  .. "POP"] =  math.floor(GetPop(player))
-	data[prefix .. "MIL"] = math.floor(GetMight(player))
-	data[prefix .. "GNP"] =   math.floor(GetGNP(player))
-	data[prefix .. "CROP"] =   math.floor(GetCropYield(player))
-	data[ prefix .. "LAND"] =  math.floor(GetLand(player))
-	data[prefix .. "GOODS"] =   math.floor(GetGoods(player))
+
+	local floor = math.floor
+	for l, f in pairs(data_fields) do 
+		data[prefix .. l] = floor(f(player))
+	end
 
 	return data
 end
@@ -400,8 +400,9 @@ end
 -- calculate numberinterval of the graph
 local function GetInterval(low, high)
 	local total = nil
+	local abs = math.abs
 	if low < 0 then
-		total = math.abs(math.abs(low) - high * -1)
+		total = abs(abs(low) - high * -1)
 	elseif low > 0 then
 		total = high - low
 	else
@@ -413,131 +414,58 @@ local function GetInterval(low, high)
 	return number_interval
 end
 
--- display the soldiers graph. must make sure that for the corresponding player, the checkbox enables
--- the lines to be shown
-local function ShowMilGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			pop_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
+local function ShowGraphByName(graph_name)
+	local graph_names = {pop = pop_graphs, crop = crop_graphs, land = land_graphs, gnp = gnp_graphs, goods = goods_graphs, mil = mil_graphs}
+	local labels = {pop = "Population", crop = "Crop Yield", land = "Land", gnp = "GNP", goods = "Goods", mil = "Soldiers"}
+	for i, p in pairs(Players) do
+		if IsValidPlayer(p) then
+			for l, g in pairs(graph_names) do
+				if l == graph_name then g[p:GetID()]:SetVisible(true and graphs_enabled[p:GetID()])
+				else
+					g[p:GetID()]:SetVisible(false)
+				end
+			end
 		end
 	end
-	local max = math.ceil(graph_maxes["mil"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, max)
+
+	local max = math.ceil(graph_maxes[graph_name] * 1.1)
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes[graph_name] * 1.1))
 	local number_interval = GetInterval(0, max)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Soldiers")
-	current_graph_field = "mil"	
+	Controls.GraphDataSetPulldown:GetButton():SetText(labels[graph_name])
+	current_graph_field = graph_name
+end
+
+-- display the soldiers graph. must make sure that for the corresponding player, the checkbox enables
+-- the lines to be shown
+local function ShowMilGraph()
+	ShowGraphByName("mil")
 end
 
 -- same as soldiers graph for population
 local function ShowPopGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			pop_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["pop"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["pop"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Population")
-	current_graph_field = "pop"	
+	ShowGraphByName("pop")
 end
 
 -- same as soldiers graph for crop yield
 local function ShowYieldGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			pop_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["crops"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["crops"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Crop Yield")
-	current_graph_field = "crop"	
+	ShowGraphByName("crop")
 end
 
 -- same as soldiers graph for gnp
 local function ShowGNPGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			pop_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["gnp"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["gnp"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("GNP")
-	current_graph_field = "gnp"	
+	ShowGraphByName("gnp")
 end
 
 -- same as soldiers graph for land
 local function ShowLandGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			pop_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["land"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["land"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Land")
-	current_graph_field = "land"	
+	ShowGraphByName("land")	
 end
 
 -- same as soldiers graph for land
 local function ShowGoodsGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			pop_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["goods"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["goods"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Goods")
-	current_graph_field = "goods"	
+	ShowGraphByName("goods")
 end
 
 --[[ creates/or updates the graph legends
@@ -555,7 +483,7 @@ local function UpdateLegend()
 				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				crops_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				crop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				land_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
 			else
@@ -575,7 +503,7 @@ local function UpdateLegend()
 					graphs_enabled[p:GetID()] = false
 					mil_graphs[p:GetID()]:SetVisible(false)
 					pop_graphs[p:GetID()]:SetVisible(false)
-					crops_graphs[p:GetID()]:SetVisible(false)
+					crop_graphs[p:GetID()]:SetVisible(false)
 					land_graphs[p:GetID()]:SetVisible(false)
 					gnp_graphs[p:GetID()]:SetVisible(false)
 					goods_graphs[p:GetID()]:SetVisible(false)
@@ -587,12 +515,7 @@ end
 
 -- Draw graph from scratch TODO: find way to cache resutls so the graph doesn't need to be remade
 local function UpdateGraph()
-	local years = {}
-	years["start"] = start_year
-	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))
-
-	--print("start year: ", years["start"])
-	--print("current year: ", years["current"])
+	local years = {start = start_year, current = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))}
 
 	-- set year and intervals constant for all graphs
 	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
@@ -607,12 +530,9 @@ local function UpdateGraph()
 
 	-- create all the graphs
 
-	graph_maxes["pop"] = 0;
-	graph_maxes["mil"] = 0;
-	graph_maxes["gnp"] = 0;
-	graph_maxes["crops"] = 0;
-	graph_maxes["land"] = 0;
-	graph_maxes["goods"] = 0;
+	for n, l in pairs(graph_types) do
+		graph_maxes[l] = 0
+	end
 
 	for i, p in pairs(Players)	do
 		if IsValidPlayer(p) then
@@ -640,10 +560,10 @@ local function UpdateGraph()
 			goods_graphs[p:GetID()]:SetWidth(2.0)
 
 			
-			if crops_graphs[p:GetID()] then crops_graphs[p:GetID()]:Clear() end
-			crops_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
-			crops_graphs[p:GetID()]:SetVisible(false)
-			crops_graphs[p:GetID()]:SetWidth(2.0)
+			if crop_graphs[p:GetID()] then crop_graphs[p:GetID()]:Clear() end
+			crop_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
+			crop_graphs[p:GetID()]:SetVisible(false)
+			crop_graphs[p:GetID()]:SetWidth(2.0)
 			
 			if land_graphs[p:GetID()] then land_graphs[p:GetID()]:Clear() end
 			land_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_land")
@@ -695,9 +615,9 @@ local function UpdateGraph()
 					end
 
 					if(i == "crop") then
-						crops_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["crops"] then
-							graph_maxes["crops"] = tonumber(j)
+						crop_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
+						if tonumber(j) > graph_maxes["crop"] then
+							graph_maxes["crop"] = tonumber(j)
 						end 
 					end
 
@@ -727,7 +647,7 @@ local function UpdateGraph()
 
 
 	UpdateLegend()
-	ShowPopGraph()
+	ShowGraphByName("pop")
 end
 
 function OpenPanel()
