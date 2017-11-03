@@ -11,17 +11,18 @@ include("InstanceManager")
 local human_id = nil
 local start_year :number = nil
 local context_store = nil
-local population_graphs = {}
+local pop_graphs = {}
 local mil_graphs = {}
 local gnp_graphs = {}
 local goods_graphs = {}
-local crops_graphs = {}
+local crop_graphs = {}
 local land_graphs = {}
 local graph_maxes = {}
+local graph_list = nil
 local graph_legend = nil
 local button_instance_manager = nil
 local current_graph_field = nil
-local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change population_graphs to pop_graphs | initialized in init
+local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change pop_graphs to pop_graphs | initialized in init
 local graphs_enabled = {}
 
 -- Convert year to number format. BC converts the number into negative
@@ -46,6 +47,7 @@ end
 ]]
 local function LoadData(player)
 	if IsValidPlayer(player) == false then return -1 end
+	local suffixes = {pop = "_POP", mil = "_MIL", gnp="_GNP", crop="_CROP", land="_LAND", goods="_GOODS"} -- create suffixes and indices for loop
 	local sequence :string = GameConfiguration.GetValue("year_sequence") -- in order to make sure all data is retrieved the year sequence must be retrieved
 	local years = {}
 	local data = {}
@@ -55,14 +57,12 @@ local function LoadData(player)
 	local prefix = tostring(player:GetID()) .. "_"
 	for x,z in pairs(years) do
 		data = {}
-		-- use fixed names in global variable
+		-- store year into table and then each corresponding field with proper suffix according to
+		-- the suffixes table
 		data["year"] = tonumber(z)
-		data["pop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_POP")
-		data["mil"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_MIL")
-		data["gnp"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GNP")
-		data["crop"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_CROP")
-		data["land"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_LAND")
-		data["goods"] = GameConfiguration.GetValue(prefix .. tostring(z) .. "_GOODS")
+		for k, s in pairs(suffixes) do 
+			data[k] = GameConfiguration.GetValue(prefix .. tostring(z) .. s)
+		end
 		table.insert(complete_data, data) -- store the current years data into the complete data table
 	end
 
@@ -119,7 +119,7 @@ end
 	might = sqrt(military_strength)*2000
 ]]
 local function GetMight(player)
-	if IsValidPlayer(player) == false or player:IsAlive() == false then return 0 end
+	if IsValidPlayer(player) == false or player:IsAlive() == false then return 0 end -- if player is dead or not a valid civ, return 0 might
 	local might = player:GetStats():GetMilitaryStrength()
 	might = math.sqrt(might) * 2000
 	return might
@@ -133,6 +133,7 @@ local function GetPop(player)
 	if IsValidPlayer(player) == false then return 0 end
 	local cities = player:GetCities()
 	if(cities == nil) then return 0 end
+
 	local population = 0
 	for i, c in cities:Members() do
 		if c then
@@ -167,11 +168,8 @@ end
 local function GetGoodsDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
-		if IsValidPlayer(p) then
-			if p:GetID() >= 0 and p:IsAlive() then
-				demographics[p:GetID()] = GetGoods(p)
-			end
-
+		if IsValidPlayer(p) and p:IsAlive() then
+			demographics[p:GetID()] = GetGoods(p)
 		end
 	end
 	return demographics
@@ -182,15 +180,10 @@ end
 local function GetDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
-		if p then
-			if IsValidPlayer(p) then
+		if IsValidPlayer(p) and p:IsAlive() then			
 				local pop = GetPop(p)
 				pop = math.ceil(pop)
-				if p:GetID() >= 0 and p:IsAlive() then
-					demographics[p:GetID()] = pop
-				end
-
-			end
+				demographics[p:GetID()] = pop
 		end
 	end
 	return demographics
@@ -200,10 +193,8 @@ end
 local function GetMilitaryMight()
 	local m_might = {}
 	for k, p in pairs(Players) do
-		if p then
-			if IsValidPlayer(p) then
+		if IsValidPlayer(p) then
 				m_might[p:GetID()] = GetMight(p)
-			end
 		end
 	end
 	return m_might
@@ -238,10 +229,8 @@ end
 local function GetCropYieldAll()
 	local demographics = {}
 	for k, p in pairs(Players) do
-		if p then
-			if IsValidPlayer(p) then
+		if IsValidPlayer(p) then
 				demographics[p:GetID()] = GetCropYield(p)
-			end
 		end
 	end
 	return demographics
@@ -272,197 +261,111 @@ end
 --[[ Get suffix of inputted number. e.g. 1000 = k and the result after division 1000 = 1
 ]]
 local function GetSuffix(input)
-	local billion = 1000000000
-	local million = 1000000
-	local thousand = 1000
-	local suffix = ""
+	local values = {billion = 1000000000, million = 1000000, thousand = 1000}
+	local suffix = {billion = "B", million = "M", thousand = "K"}
 	local result = {}
-	if input > billion then
-		suffix = "B"
-		input = input / billion
-	elseif input > million then
-		suffix = "M"
-		input = input / million
-	elseif input > thousand then
-		suffix = "K"
-		input = input / thousand
-	else
-		suffix = ""
+
+	local function input_operation(inp, divisor, n)
+		print("in input function ", inp)
+		result[1] = suffix[n]
+		inp = inp / divisor
+		return inp
 	end
 
-	input = input * 100
-	input = math.ceil(input)
-	input = input / 100
+	if input < values.thousand then
+		result[1] = ""
+	else
+		if input > values.billion then input = input_operation(input, values.billion, "billion")
+		elseif input > values.million then input = input_operation(input, values.million, "million")
+		elseif input >= values.thousand then input = input_operation(input, values.thousand, "thousand")
+		else
+			input = 0
+		end
+	end
 
-	--print("after round: ", input)
+	input = math.ceil(input * 100)
+	input = input / 100
 	result[0] = input
-	result[1] = suffix
+	
 	return result
 end
 
 --[[ Updates corresponding field in the rankings panel
 ]]
 local function UpdateField(field)
-	-- place holder to reduce redundant code use flags
+	local demographics_functions = {pop = GetDemographics, gnp = GetGNPAll, mil = GetMilitaryMight, goods = GetGoodsDemographics, land = GetLandAll, crop = GetCropYieldAll}
+	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
 	local demographics = nil
-	local suffix = ""
-	if(field == "population") then 
-		demographics = GetDemographics()
-	elseif(field == "gnp") then 
-		demographics = GetGNPAll()
-	elseif(field == "military") then 
-		demographics = GetMilitaryMight()
-	elseif(field == "goods") then 
-		demographics = GetGoodsDemographics()
-	elseif(field == "land") then 
-		demographics = GetLandAll()
-	elseif(field == "crop_yield") then 
-		demographics = GetCropYieldAll()
-	else 
-		return 0
+
+	--print("picking functions according to ", field)
+	if demographics_functions[field] then
+		demographics = demographics_functions[field]()
+	else
+		print("incorrect demographics field accessed: ", field)
+		return -1
 	end
 
-	--print("getting demographics")
-	local rank = 1
-	local average = 0
-	local worst = 0
-	local best = 0
 	local count = 0
-	local result = nil
-	local civ_id = {}
-	local control_best = nil
-	local control_worst = nil
+	local result = nil 
+	local civ_id = {best = human_id, worst = human_id} 	-- set all fields in civ id to human by default
+	local icons = {best = nil, worst = nil}
 	
-	-- set all fields in civ id to human by default
-	civ_id["best"] = human_id
-	civ_id["worst"] = human_id
 	-- get and set population value
 	local tmp = demographics[human_id]
-	best = tmp
-	worst = tmp
+	panel_values.best = tmp
+	panel_values.worst = tmp
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if Players[i]:IsAlive() then
-				if j > tmp then rank = rank + 1 end
-				if j < worst then 
-					worst = j
-					civ_id["worst"] = i
+				if j > tmp then panel_values.rank = panel_values.rank + 1 end
+				if j < panel_values.worst then 
+					panel_values.worst = j
+					civ_id.worst = i
 				end
-				if j > best then 
-					best = j
-					civ_id["best"] = i
+				if j > panel_values.best then 
+					panel_values.best = j
+					civ_id.best = i
 				end
-				average = average + j
+				panel_values.average = panel_values.average + j
 				count = count + 1
 			end
 		end
 	end
 
-	average = math.floor(average / count)
-	worst = math.floor(worst)
-	best = math.floor(best)
-	local value = math.floor(demographics[human_id])
-	-- Set field according to input TODO: change input to match the tables so it can be reused
-	-- and makes it easy to iterate tables
-	if(field == "population") then 
-		result = GetSuffix(value)
-		Controls.pop_value:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(rank)
-		Controls.pop_rank:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(worst)
-		Controls.pop_worst:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(best)
-		Controls.pop_best:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(average)
-		Controls.pop_average:SetText(tostring(result[0]) .. result[1])
+	panel_values.average = math.floor(panel_values.average / count)
+	panel_values.worst = math.floor(panel_values.worst)
+	panel_values.best = math.floor(panel_values.best)
+	panel_values.value = math.floor(demographics[human_id])
 
-		control_best = Controls.pop_best_icon
-		control_worst = Controls.pop_worst_icon
-
-	elseif(field == "gnp") then 
-		Controls.gnp_value:SetText(tostring(value) .. suffix)
-		Controls.gnp_rank:SetText(tostring(rank) .. suffix)
-		Controls.gnp_worst:SetText(tostring(worst) .. suffix)
-		Controls.gnp_best:SetText(tostring(best) .. suffix)
-		Controls.gnp_average:SetText(tostring(average) .. suffix)
-
-		control_best = Controls.gnp_best_icon
-		control_worst = Controls.gnp_worst_icon
-
-	elseif(field == "military") then 
-		result = GetSuffix(value)
-		Controls.mil_value:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(rank)
-		Controls.mil_rank:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(worst)
-		Controls.mil_worst:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(best)
-		Controls.mil_best:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(average)
-		Controls.mil_average:SetText(tostring(result[0]) .. result[1])
-
-		control_best = Controls.mil_best_icon
-		control_worst = Controls.mil_worst_icon
-
-	elseif(field == "goods") then 
-		Controls.goods_value:SetText(tostring(value) .. suffix)
-		Controls.goods_rank:SetText(tostring(rank) .. suffix)
-		Controls.goods_worst:SetText(tostring(worst) .. suffix)
-		Controls.goods_best:SetText(tostring(best) .. suffix)
-		Controls.goods_average:SetText(tostring(average) .. suffix)
-
-		control_best = Controls.goods_best_icon
-		control_worst = Controls.goods_worst_icon
-
-	elseif(field == "land") then 
-		result = GetSuffix(value)
-		Controls.land_value:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(rank)
-		Controls.land_rank:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(worst)
-		Controls.land_worst:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(best)
-		Controls.land_best:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(average)
-		Controls.land_average:SetText(tostring(result[0]) .. result[1])
-
-		control_best = Controls.land_best_icon
-		control_worst = Controls.land_worst_icon
-
-	elseif(field == "crop_yield") then
-		Controls.crop_value:SetText(tostring(demographics[human_id]) .. suffix)
-		Controls.crop_rank:SetText(tostring(rank) .. suffix)
-		Controls.crop_worst:SetText(tostring(worst) .. suffix)
-		Controls.crop_best:SetText(tostring(best) .. suffix)
-		Controls.crop_average:SetText(tostring(average) .. suffix)
-
-		control_best = Controls.crop_best_icon
-		control_worst = Controls.crop_worst_icon
-
-	else 
-		return 0
-	end	
+	for f, v in pairs(panel_values) do
+		result = GetSuffix(v)
+		if result[0] == nil or result[1] == nil then return -1 end
+		Controls[field .. "_" .. f]:SetText(tostring(result[0]) .. result[1])
+	end
+	icons.best = Controls[field .. "_best_icon"]
+	icons.worst = Controls[field .. "_worst_icon"]
 
 	-- if worst is the best, there is no best or worst. Set to question mark. Else set the icon according to the player id
-	if worst == best then
-		SetIcon(control_best, "none")
-		SetIcon(control_worst, "none")
+	if panel_values.worst == panel_values.best then
+		SetIcon(icons.best, "none")
+		SetIcon(icons.worst, "none")
 	else
-		if Players[human_id]:GetDiplomacy():HasMet(civ_id["best"]) or human_id == civ_id["best"] then SetIcon(control_best, civ_id["best"])
-		else SetIcon(control_best, "none") end
-		if Players[human_id]:GetDiplomacy():HasMet(civ_id["worst"]) or human_id == civ_id["worst"] then SetIcon(control_worst, civ_id["worst"])
-		else SetIcon(control_worst, "none") end
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id.best) or human_id == civ_id.best then 
+			SetIcon(icons.best, civ_id.best)
+			icons.best:SetToolTipString(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[civ_id.best]:GetLeaderTypeName()].Name))
+		else SetIcon(icons.best, "none") end
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id.worst) or human_id == civ_id.worst then 
+			SetIcon(icons.worst, civ_id.worst)
+			icons.worst:SetToolTipString(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[civ_id.worst]:GetLeaderTypeName()].Name))
+		else SetIcon(icons.worst, "none") end
 	end
 end
 
 --[[Update panel by rewriting to all fields]]
 function UpdatePanel()
-	UpdateField("population")
-	UpdateField("gnp")
-	UpdateField("military")
-	UpdateField("goods")
-	UpdateField("land")
-	UpdateField("crop_yield")
+	for n, f in pairs(graph_types) do
+		UpdateField(f)
+	end
 end
 
 --[[ Closes everything in this context]]
@@ -493,14 +396,13 @@ local function GetData(player)
 	local data = {}
 	local prefix = tostring(player:GetID()) .. "_"
 	prefix = prefix .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))) .. "_"
-
+	local data_fields = {POP = GetPop, MIL = GetMight, GNP = GetGNP, CROP = GetCropYield, LAND = GetLand, GOODS = GetGoods}
 	-- get population
-	data[prefix  .. "POP"] =  math.floor(GetPop(player))
-	data[prefix .. "MIL"] = math.floor(GetMight(player))
-	data[prefix .. "GNP"] =   math.floor(GetGNP(player))
-	data[prefix .. "CROP"] =   math.floor(GetCropYield(player))
-	data[ prefix .. "LAND"] =  math.floor(GetLand(player))
-	data[prefix .. "GOODS"] =   math.floor(GetGoods(player))
+
+	local floor = math.floor
+	for l, f in pairs(data_fields) do 
+		data[prefix .. l] = floor(f(player))
+	end
 
 	return data
 end
@@ -508,8 +410,9 @@ end
 -- calculate numberinterval of the graph
 local function GetInterval(low, high)
 	local total = nil
+	local abs = math.abs
 	if low < 0 then
-		total = math.abs(math.abs(low) - high * -1)
+		total = abs(abs(low) - high * -1)
 	elseif low > 0 then
 		total = high - low
 	else
@@ -521,131 +424,57 @@ local function GetInterval(low, high)
 	return number_interval
 end
 
--- display the soldiers graph. must make sure that for the corresponding player, the checkbox enables
--- the lines to be shown
-local function ShowMilGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
+local function ShowGraphByName(graph_name)
+	local labels = {pop = "Population", crop = "Crop Yield", land = "Land", gnp = "GNP", goods = "Goods", mil = "Soldiers"}
+	for i, p in pairs(Players) do
+		if IsValidPlayer(p) then
+			for l, g in pairs(graph_list) do
+				if l == graph_name then g[p:GetID()]:SetVisible(true and graphs_enabled[p:GetID()])
+				else
+					g[p:GetID()]:SetVisible(false)
+				end
+			end
 		end
 	end
-	local max = math.ceil(graph_maxes["mil"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, max)
+
+	local max = math.ceil(graph_maxes[graph_name] * 1.1)
+	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes[graph_name] * 1.1))
 	local number_interval = GetInterval(0, max)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Soldiers")
-	current_graph_field = "mil"	
+	Controls.GraphDataSetPulldown:GetButton():SetText(labels[graph_name])
+	current_graph_field = graph_name
+end
+
+-- display the soldiers graph. must make sure that for the corresponding player, the checkbox enables
+-- the lines to be shown
+local function ShowMilGraph()
+	ShowGraphByName("mil")
 end
 
 -- same as soldiers graph for population
 local function ShowPopGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["pop"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["pop"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Population")
-	current_graph_field = "pop"	
+	ShowGraphByName("pop")
 end
 
 -- same as soldiers graph for crop yield
 local function ShowYieldGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["crops"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["crops"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Crop Yield")
-	current_graph_field = "crop"	
+	ShowGraphByName("crop")
 end
 
 -- same as soldiers graph for gnp
 local function ShowGNPGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["gnp"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["gnp"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("GNP")
-	current_graph_field = "gnp"	
+	ShowGraphByName("gnp")
 end
 
 -- same as soldiers graph for land
 local function ShowLandGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(false)
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["land"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["land"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Land")
-	current_graph_field = "land"	
+	ShowGraphByName("land")	
 end
 
 -- same as soldiers graph for land
 local function ShowGoodsGraph()
-	for x,z in pairs(Players) do
-		if IsValidPlayer(z) then
-			population_graphs[z:GetID()]:SetVisible(false)
-			crops_graphs[z:GetID()]:SetVisible(false)
-			land_graphs[z:GetID()]:SetVisible(false)
-			gnp_graphs[z:GetID()]:SetVisible(false)
-			goods_graphs[z:GetID()]:SetVisible(true and graphs_enabled[z:GetID()])
-			mil_graphs[z:GetID()]:SetVisible(false)
-		end
-	end
-	local max = math.ceil(graph_maxes["goods"] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes["goods"] * 1.1))
-	local number_interval = GetInterval(0, max)
-	Controls.ResultsGraph:SetYNumberInterval(number_interval)
-	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText("Goods")
-	current_graph_field = "goods"	
+	ShowGraphByName("goods")
 end
 
 --[[ creates/or updates the graph legends
@@ -659,13 +488,14 @@ local function UpdateLegend()
 				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
 				--SetIcon(instance.LegendIcon, p:GetID()) civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
-				population_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				pop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				crops_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
+				crop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				land_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
+				print("setting the icon text with ", "TEST ME OUT")
 			else
 				SetIcon(instance.LegendIcon, "none")
 				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
@@ -673,7 +503,7 @@ local function UpdateLegend()
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
 				if bCheck then
 					if  current_graph_field == "mil" then mil_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "pop" then population_graphs[p:GetID()]:SetVisible(bCheck) 
+					elseif current_graph_field == "pop" then pop_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "crop" then crops_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "land" then land_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "gnp" then gnp_graphs[p:GetID()]:SetVisible(bCheck) 
@@ -682,8 +512,8 @@ local function UpdateLegend()
 				else
 					graphs_enabled[p:GetID()] = false
 					mil_graphs[p:GetID()]:SetVisible(false)
-					population_graphs[p:GetID()]:SetVisible(false)
-					crops_graphs[p:GetID()]:SetVisible(false)
+					pop_graphs[p:GetID()]:SetVisible(false)
+					crop_graphs[p:GetID()]:SetVisible(false)
 					land_graphs[p:GetID()]:SetVisible(false)
 					gnp_graphs[p:GetID()]:SetVisible(false)
 					goods_graphs[p:GetID()]:SetVisible(false)
@@ -695,147 +525,64 @@ end
 
 -- Draw graph from scratch TODO: find way to cache resutls so the graph doesn't need to be remade
 local function UpdateGraph()
-	local years = {}
-	years["start"] = start_year
-	years["current"] = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))
-
-	--print("start year: ", years["start"])
-	--print("current year: ", years["current"])
-
+	local years = {start = start_year, current = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))}
+	graph_list = {pop = pop_graphs, mil = mil_graphs, land = land_graphs, gnp = gnp_graphs, crop = crop_graphs, goods = goods_graphs}
+	local values = {best = 0, worst = 100000}
 	-- set year and intervals constant for all graphs
-	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
-	local number_interval = {}
-	number_interval["x"] = GetInterval(years["start"], years["current"])
-	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
-	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
-	local data = nil
-	
-	local best = 0
-	local worst = 10000000
+	Controls.ResultsGraph:SetDomain(years.start, years.current)
+	local number_interval = GetInterval(years.start, years.start)
+	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval / 4))
+	Controls.ResultsGraph:SetXNumberInterval(number_interval)
 
 	-- create all the graphs
 
-	graph_maxes["pop"] = 0;
-	graph_maxes["mil"] = 0;
-	graph_maxes["gnp"] = 0;
-	graph_maxes["crops"] = 0;
-	graph_maxes["land"] = 0;
-	graph_maxes["goods"] = 0;
+	for n, l in pairs(graph_types) do
+		graph_maxes[l] = 0
+	end
 
 	for i, p in pairs(Players)	do
 		if IsValidPlayer(p) then
-			if population_graphs[p:GetID()] then population_graphs[p:GetID()]:Clear() end
-			population_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
-			population_graphs[p:GetID()]:SetVisible(false)
-			population_graphs[p:GetID()]:SetWidth(2.0)
 
-			if mil_graphs[p:GetID()] then mil_graphs[p:GetID()]:Clear() end
-			mil_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_military")
-			mil_graphs[p:GetID()]:SetVisible(false)
-			mil_graphs[p:GetID()]:SetWidth(2.0)
+			for i, l in pairs(graph_types) do
+				if graph_list[l][p:GetID()] then graph_list[l][p:GetID()]:Clear() end
+				graph_list[l][p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
+				graph_list[l][p:GetID()]:SetVisible(false)
+				graph_list[l][p:GetID()]:SetWidth(2.0)
+			end
 
-
-			if gnp_graphs[p:GetID()] then gnp_graphs[p:GetID()]:Clear() end
-			gnp_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_gnp")
-			gnp_graphs[p:GetID()]:SetWidth(2.0)
-			gnp_graphs[p:GetID()]:SetVisible(false)
-			gnp_graphs[p:GetID()]:SetWidth(2.0)
-
-			
-			if goods_graphs[p:GetID()] then goods_graphs[p:GetID()]:Clear() end
-			goods_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_goods")
-			goods_graphs[p:GetID()]:SetVisible(false)
-			goods_graphs[p:GetID()]:SetWidth(2.0)
-
-			
-			if crops_graphs[p:GetID()] then crops_graphs[p:GetID()]:Clear() end
-			crops_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
-			crops_graphs[p:GetID()]:SetVisible(false)
-			crops_graphs[p:GetID()]:SetWidth(2.0)
-			
-			if land_graphs[p:GetID()] then land_graphs[p:GetID()]:Clear() end
-			land_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_land")
-			land_graphs[p:GetID()]:SetVisible(false)
-			land_graphs[p:GetID()]:SetWidth(2.0)
 		end
 	end
 	
-	local range_pop = {} -- can remove this, need to make sure it works without
+	local data = nil
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then
 			data = LoadData(p)
-			best = 0
-			worst = 10000000
+			values.best = 0
+			values.worst = 10000000
 			for x,z in pairs(data) do
 				for i, j in pairs(z) do
-					--print("i: ", i, "j: ", j)
-
-					if best < tonumber(j) then
-						best = tonumber(j)
+					if values.best < tonumber(j) then
+						values.best = tonumber(j)
 					end
 
-					if(i == "pop") then
-						population_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["pop"] then
-							graph_maxes["pop"] = tonumber(j)
+					if(i ~= "year") then 
+						graph_list[i][p:GetID()]:AddVertex(tonumber(z.year), tonumber(j))					
+						if tonumber(j) > graph_maxes[i] then
+							graph_maxes[i] = tonumber(j)
 						end 
-					end
 
-					if(i == "mil") then 
-						mil_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["mil"] then
-							graph_maxes["mil"] = tonumber(j)
-						end 
-					end
-
-					if(i == "gnp") then
-						gnp_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["gnp"] then
-							graph_maxes["gnp"] = tonumber(j)
-						end 
-					end
-
-					if(i == "goods") then
-						goods_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["goods"] then
-							graph_maxes["goods"] = tonumber(j)
-						end 
-					end
-
-					if(i == "crop") then
-						crops_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["crops"] then
-							graph_maxes["crops"] = tonumber(j)
-						end 
-					end
-
-					if(i == "land") then
-						land_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["land"] then
-							graph_maxes["land"] = tonumber(j)
-						end 					
-					end
-
-					-- have better way to set worst
-					if worst > tonumber(j) then
-						worst = tonumber(j)
+						-- have better way to set worst
+						if values.worst > tonumber(j) then
+							values.worst = tonumber(j)
+						end
 					end
 				end
 			end
 		end
 	end
 
-	range_pop["best"] = best
-	range_pop["worst"] = worst
-	number_interval["y"] = math.floor(((range_pop["best"] - range_pop["worst"]) / 4))
-
-	Controls.ResultsGraph:SetRange(range_pop["worst"], range_pop["best"] )
-	Controls.ResultsGraph:SetYNumberInterval(number_interval["y"])
-	Controls.ResultsGraph:SetYTickInterval(math.floor(number_interval["y"] / 4))
-
-
 	UpdateLegend()
-	ShowPopGraph()
+	ShowGraphByName("pop")
 end
 
 function OpenPanel()
@@ -877,7 +624,7 @@ end
 
 -- change in case of multiplayers or hotseat
 -- Intialize necessary variables and UI
-function Init()
+local function Init()
 	print("load completed start initizialization")
 	for i, j in pairs(Players) do
 		if j then
@@ -886,7 +633,7 @@ function Init()
 		if IsValidPlayer(j) then graphs_enabled[j:GetID()] = true end
 	end
 
-	graph_types = {"land", "pop", "mil", "crop", "gnp", "goods"} -- set global graph names/types
+	graph_types = {"pop", "mil", "gnp", "crop", "land", "goods"} -- set global graph names/types
 
 	start_year = GameConfiguration.GetStartYear()
 	context_store = ContextPtr
@@ -905,12 +652,12 @@ function Init()
 
 
 	-- build pulldown
-	local labels = {"Popluation", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
+	local labels = {"Population", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
 	local pulldown = Controls.GraphDataSetPulldown
 
 	-- return appropriate function to be used in pulldown
 	local function DetermineFunction(input)
-		if input == "Popluation" then return ShowPopGraph
+		if input == "Population" then return ShowPopGraph
 		elseif input == "Soldiers" then return ShowMilGraph 
 		elseif input == "Crop Yield" then return ShowYieldGraph 
 		elseif input == "GNP" then return ShowGNPGraph
