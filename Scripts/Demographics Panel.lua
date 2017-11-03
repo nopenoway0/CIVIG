@@ -119,7 +119,7 @@ end
 	might = sqrt(military_strength)*2000
 ]]
 local function GetMight(player)
-	if IsValidPlayer(player) == false then return 0 end
+	if IsValidPlayer(player) == false or player:IsAlive() == false then return 0 end
 	local might = player:GetStats():GetMilitaryStrength()
 	might = math.sqrt(might) * 2000
 	return might
