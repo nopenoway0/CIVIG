@@ -415,11 +415,10 @@ local function GetInterval(low, high)
 end
 
 local function ShowGraphByName(graph_name)
-	local graph_names = {pop = pop_graphs, crop = crop_graphs, land = land_graphs, gnp = gnp_graphs, goods = goods_graphs, mil = mil_graphs}
 	local labels = {pop = "Population", crop = "Crop Yield", land = "Land", gnp = "GNP", goods = "Goods", mil = "Soldiers"}
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then
-			for l, g in pairs(graph_names) do
+			for l, g in pairs(graph_list) do
 				if l == graph_name then g[p:GetID()]:SetVisible(true and graphs_enabled[p:GetID()])
 				else
 					g[p:GetID()]:SetVisible(false)
@@ -516,17 +515,13 @@ end
 -- Draw graph from scratch TODO: find way to cache resutls so the graph doesn't need to be remade
 local function UpdateGraph()
 	local years = {start = start_year, current = YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn() - 1))}
-
+	graph_list = {pop = pop_graphs, mil = mil_graphs, land = land_graphs, gnp = gnp_graphs, crop = crop_graphs, goods = goods_graphs}
+	local values = {best = 0, worst = 100000}
 	-- set year and intervals constant for all graphs
-	Controls.ResultsGraph:SetDomain(years["start"], years["current"])
-	local number_interval = {}
-	number_interval["x"] = GetInterval(years["start"], years["current"])
-	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval["x"] / 4))
-	Controls.ResultsGraph:SetXNumberInterval(number_interval["x"])
-	local data = nil
-	
-	local best = 0
-	local worst = 10000000
+	Controls.ResultsGraph:SetDomain(years.start, years.current)
+	local number_interval = GetInterval(years.start, years.start)
+	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval / 4))
+	Controls.ResultsGraph:SetXNumberInterval(number_interval)
 
 	-- create all the graphs
 
@@ -536,115 +531,45 @@ local function UpdateGraph()
 
 	for i, p in pairs(Players)	do
 		if IsValidPlayer(p) then
-			if pop_graphs[p:GetID()] then pop_graphs[p:GetID()]:Clear() end
-			pop_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
-			pop_graphs[p:GetID()]:SetVisible(false)
-			pop_graphs[p:GetID()]:SetWidth(2.0)
 
-			if mil_graphs[p:GetID()] then mil_graphs[p:GetID()]:Clear() end
-			mil_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_military")
-			mil_graphs[p:GetID()]:SetVisible(false)
-			mil_graphs[p:GetID()]:SetWidth(2.0)
+			for i, l in pairs(graph_types) do
+				if graph_list[l][p:GetID()] then graph_list[l][p:GetID()]:Clear() end
+				graph_list[l][p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
+				graph_list[l][p:GetID()]:SetVisible(false)
+				graph_list[l][p:GetID()]:SetWidth(2.0)
+			end
 
-
-			if gnp_graphs[p:GetID()] then gnp_graphs[p:GetID()]:Clear() end
-			gnp_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_gnp")
-			gnp_graphs[p:GetID()]:SetWidth(2.0)
-			gnp_graphs[p:GetID()]:SetVisible(false)
-			gnp_graphs[p:GetID()]:SetWidth(2.0)
-
-			
-			if goods_graphs[p:GetID()] then goods_graphs[p:GetID()]:Clear() end
-			goods_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_goods")
-			goods_graphs[p:GetID()]:SetVisible(false)
-			goods_graphs[p:GetID()]:SetWidth(2.0)
-
-			
-			if crop_graphs[p:GetID()] then crop_graphs[p:GetID()]:Clear() end
-			crop_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_crops")
-			crop_graphs[p:GetID()]:SetVisible(false)
-			crop_graphs[p:GetID()]:SetWidth(2.0)
-			
-			if land_graphs[p:GetID()] then land_graphs[p:GetID()]:Clear() end
-			land_graphs[p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_land")
-			land_graphs[p:GetID()]:SetVisible(false)
-			land_graphs[p:GetID()]:SetWidth(2.0)
 		end
 	end
 	
-	local range_pop = {} -- can remove this, need to make sure it works without
+	local data = nil
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then
 			data = LoadData(p)
-			best = 0
-			worst = 10000000
+			values.best = 0
+			values.worst = 10000000
 			for x,z in pairs(data) do
 				for i, j in pairs(z) do
-					--print("i: ", i, "j: ", j)
-
-					if best < tonumber(j) then
-						best = tonumber(j)
+					if values.best < tonumber(j) then
+						values.best = tonumber(j)
 					end
 
-					if(i == "pop") then
-						pop_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["pop"] then
-							graph_maxes["pop"] = tonumber(j)
+					print("i: ", i, "j: ", j)
+					if(i ~= "year") then 
+						graph_list[i][p:GetID()]:AddVertex(tonumber(z.year), tonumber(j))					
+						if tonumber(j) > graph_maxes[i] then
+							graph_maxes[i] = tonumber(j)
 						end 
-					end
 
-					if(i == "mil") then 
-						mil_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["mil"] then
-							graph_maxes["mil"] = tonumber(j)
-						end 
-					end
-
-					if(i == "gnp") then
-						gnp_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["gnp"] then
-							graph_maxes["gnp"] = tonumber(j)
-						end 
-					end
-
-					if(i == "goods") then
-						goods_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["goods"] then
-							graph_maxes["goods"] = tonumber(j)
-						end 
-					end
-
-					if(i == "crop") then
-						crop_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["crop"] then
-							graph_maxes["crop"] = tonumber(j)
-						end 
-					end
-
-					if(i == "land") then
-						land_graphs[p:GetID()]:AddVertex(tonumber(z["year"]), tonumber(j))
-						if tonumber(j) > graph_maxes["land"] then
-							graph_maxes["land"] = tonumber(j)
-						end 					
-					end
-
-					-- have better way to set worst
-					if worst > tonumber(j) then
-						worst = tonumber(j)
+						-- have better way to set worst
+						if values.worst > tonumber(j) then
+							values.worst = tonumber(j)
+						end
 					end
 				end
 			end
 		end
 	end
-
-	range_pop["best"] = best
-	range_pop["worst"] = worst
-	number_interval["y"] = math.floor(((range_pop["best"] - range_pop["worst"]) / 4))
-
-	Controls.ResultsGraph:SetRange(range_pop["worst"], range_pop["best"] )
-	Controls.ResultsGraph:SetYNumberInterval(number_interval["y"])
-	Controls.ResultsGraph:SetYTickInterval(math.floor(number_interval["y"] / 4))
-
 
 	UpdateLegend()
 	ShowGraphByName("pop")
