@@ -286,166 +286,75 @@ end
 --[[ Updates corresponding field in the rankings panel
 ]]
 local function UpdateField(field)
-	-- place holder to reduce redundant code use flags
+	local demographics_functions = {pop = GetDemographics, gnp = GetGNPAll, mil = GetMilitaryMight, goods = GetGoodsDemographics, land = GetLandAll, crop = GetCropYieldAll}
+	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
 	local demographics = nil
-	local suffix = ""
-	if(field == "population") then 
-		demographics = GetDemographics()
-	elseif(field == "gnp") then 
-		demographics = GetGNPAll()
-	elseif(field == "military") then 
-		demographics = GetMilitaryMight()
-	elseif(field == "goods") then 
-		demographics = GetGoodsDemographics()
-	elseif(field == "land") then 
-		demographics = GetLandAll()
-	elseif(field == "crop_yield") then 
-		demographics = GetCropYieldAll()
-	else 
-		return 0
+
+	print("picking functions according to ", field)
+	if demographics_functions[field] then
+		demographics = demographics_functions[field]()
+	else
+		print("incorrect demographics field accessed: ", field)
+		return -1
 	end
 
-	--print("getting demographics")
-	local rank = 1
-	local average = 0
-	local worst = 0
-	local best = 0
 	local count = 0
-	local result = nil
-	local civ_id = {}
-	local control_best = nil
-	local control_worst = nil
+	local result = nil 
+	local civ_id = {best = human_id, worst = human_id} 	-- set all fields in civ id to human by default
+	local icons = {best = nil, worst = nil}
 	
-	-- set all fields in civ id to human by default
-	civ_id["best"] = human_id
-	civ_id["worst"] = human_id
 	-- get and set population value
 	local tmp = demographics[human_id]
-	best = tmp
-	worst = tmp
+	panel_values.best = tmp
+	panel_values.worst = tmp
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if Players[i]:IsAlive() then
-				if j > tmp then rank = rank + 1 end
-				if j < worst then 
-					worst = j
-					civ_id["worst"] = i
+				if j > tmp then panel_values.rank = panel_values.rank + 1 end
+				if j < panel_values.worst then 
+					panel_values.worst = j
+					civ_id.worst = i
 				end
-				if j > best then 
-					best = j
-					civ_id["best"] = i
+				if j > panel_values.best then 
+					panel_values.best = j
+					civ_id.best = i
 				end
-				average = average + j
+				panel_values.average = panel_values.average + j
 				count = count + 1
 			end
 		end
 	end
 
-	average = math.floor(average / count)
-	worst = math.floor(worst)
-	best = math.floor(best)
-	local value = math.floor(demographics[human_id])
-	-- Set field according to input TODO: change input to match the tables so it can be reused
-	-- and makes it easy to iterate tables
-	if(field == "population") then 
-		result = GetSuffix(value)
-		Controls.pop_value:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(rank)
-		Controls.pop_rank:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(worst)
-		Controls.pop_worst:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(best)
-		Controls.pop_best:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(average)
-		Controls.pop_average:SetText(tostring(result[0]) .. result[1])
+	panel_values.average = math.floor(panel_values.average / count)
+	panel_values.worst = math.floor(panel_values.worst)
+	panel_values.best = math.floor(panel_values.best)
+	panel_values.value = math.floor(demographics[human_id])
 
-		control_best = Controls.pop_best_icon
-		control_worst = Controls.pop_worst_icon
-
-	elseif(field == "gnp") then 
-		Controls.gnp_value:SetText(tostring(value) .. suffix)
-		Controls.gnp_rank:SetText(tostring(rank) .. suffix)
-		Controls.gnp_worst:SetText(tostring(worst) .. suffix)
-		Controls.gnp_best:SetText(tostring(best) .. suffix)
-		Controls.gnp_average:SetText(tostring(average) .. suffix)
-
-		control_best = Controls.gnp_best_icon
-		control_worst = Controls.gnp_worst_icon
-
-	elseif(field == "military") then 
-		result = GetSuffix(value)
-		Controls.mil_value:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(rank)
-		Controls.mil_rank:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(worst)
-		Controls.mil_worst:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(best)
-		Controls.mil_best:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(average)
-		Controls.mil_average:SetText(tostring(result[0]) .. result[1])
-
-		control_best = Controls.mil_best_icon
-		control_worst = Controls.mil_worst_icon
-
-	elseif(field == "goods") then 
-		Controls.goods_value:SetText(tostring(value) .. suffix)
-		Controls.goods_rank:SetText(tostring(rank) .. suffix)
-		Controls.goods_worst:SetText(tostring(worst) .. suffix)
-		Controls.goods_best:SetText(tostring(best) .. suffix)
-		Controls.goods_average:SetText(tostring(average) .. suffix)
-
-		control_best = Controls.goods_best_icon
-		control_worst = Controls.goods_worst_icon
-
-	elseif(field == "land") then 
-		result = GetSuffix(value)
-		Controls.land_value:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(rank)
-		Controls.land_rank:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(worst)
-		Controls.land_worst:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(best)
-		Controls.land_best:SetText(tostring(result[0]) .. result[1])
-		result = GetSuffix(average)
-		Controls.land_average:SetText(tostring(result[0]) .. result[1])
-
-		control_best = Controls.land_best_icon
-		control_worst = Controls.land_worst_icon
-
-	elseif(field == "crop_yield") then
-		Controls.crop_value:SetText(tostring(demographics[human_id]) .. suffix)
-		Controls.crop_rank:SetText(tostring(rank) .. suffix)
-		Controls.crop_worst:SetText(tostring(worst) .. suffix)
-		Controls.crop_best:SetText(tostring(best) .. suffix)
-		Controls.crop_average:SetText(tostring(average) .. suffix)
-
-		control_best = Controls.crop_best_icon
-		control_worst = Controls.crop_worst_icon
-
-	else 
-		return 0
-	end	
+	for f, v in pairs(panel_values) do
+		result = GetSuffix(v)
+		if result[0] == nil or result[1] == nil then return -1 end
+		Controls[field .. "_" .. f]:SetText(tostring(result[0]) .. result[1])
+	end
+	icons.best = Controls[field .. "_best_icon"]
+	icons.worst = Controls[field .. "_worst_icon"]
 
 	-- if worst is the best, there is no best or worst. Set to question mark. Else set the icon according to the player id
-	if worst == best then
-		SetIcon(control_best, "none")
-		SetIcon(control_worst, "none")
+	if panel_values.worst == panel_values.best then
+		SetIcon(icons.best, "none")
+		SetIcon(icons.worst, "none")
 	else
-		if Players[human_id]:GetDiplomacy():HasMet(civ_id["best"]) or human_id == civ_id["best"] then SetIcon(control_best, civ_id["best"])
-		else SetIcon(control_best, "none") end
-		if Players[human_id]:GetDiplomacy():HasMet(civ_id["worst"]) or human_id == civ_id["worst"] then SetIcon(control_worst, civ_id["worst"])
-		else SetIcon(control_worst, "none") end
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id.best) or human_id == civ_id.best then SetIcon(icons.best, civ_id.best)
+		else SetIcon(icons.best, "none") end
+		if Players[human_id]:GetDiplomacy():HasMet(civ_id.worst) or human_id == civ_id.worst then SetIcon(icons.worst, civ_id.worst)
+		else SetIcon(icons.worst, "none") end
 	end
 end
 
 --[[Update panel by rewriting to all fields]]
 function UpdatePanel()
-	UpdateField("population")
-	UpdateField("gnp")
-	UpdateField("military")
-	UpdateField("goods")
-	UpdateField("land")
-	UpdateField("crop_yield")
+	for n, f in pairs(graph_types) do
+		UpdateField(f)
+	end
 end
 
 --[[ Closes everything in this context]]
