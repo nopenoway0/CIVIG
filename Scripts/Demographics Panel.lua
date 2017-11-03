@@ -266,7 +266,6 @@ local function GetSuffix(input)
 	local result = {}
 
 	local function input_operation(inp, divisor, n)
-		print("in input function ", inp)
 		result[1] = suffix[n]
 		inp = inp / divisor
 		return inp
@@ -495,7 +494,6 @@ local function UpdateLegend()
 				crop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				land_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
-				print("setting the icon text with ", "TEST ME OUT")
 			else
 				SetIcon(instance.LegendIcon, "none")
 				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
