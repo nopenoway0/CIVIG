@@ -508,7 +508,7 @@ local function UpdateLegend()
 				if bCheck then
 					if  current_graph_field == "mil" then mil_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "pop" then pop_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "crop" then crops_graphs[p:GetID()]:SetVisible(bCheck) 
+					elseif current_graph_field == "crop" then crop_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "land" then land_graphs[p:GetID()]:SetVisible(bCheck) 
 					elseif current_graph_field == "gnp" then gnp_graphs[p:GetID()]:SetVisible(bCheck) 
  					elseif current_graph_field == "goods" then goods_graphs[p:GetID()]:SetVisible(bCheck) end
