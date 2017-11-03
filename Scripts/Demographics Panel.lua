@@ -352,11 +352,17 @@ local function UpdateField(field)
 		if Players[human_id]:GetDiplomacy():HasMet(civ_id.best) or human_id == civ_id.best then 
 			SetIcon(icons.best, civ_id.best)
 			icons.best:SetToolTipString(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[civ_id.best]:GetLeaderTypeName()].Name))
-		else SetIcon(icons.best, "none") end
+		else 
+			icons.best:SetToolTipString("")
+			SetIcon(icons.best, "none") 
+		end
 		if Players[human_id]:GetDiplomacy():HasMet(civ_id.worst) or human_id == civ_id.worst then 
 			SetIcon(icons.worst, civ_id.worst)
 			icons.worst:SetToolTipString(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[civ_id.worst]:GetLeaderTypeName()].Name))
-		else SetIcon(icons.worst, "none") end
+		else 
+			SetIcon(icons.worst, "none")
+			icons.worst:SetToolTipString("")
+		end
 	end
 end
 
