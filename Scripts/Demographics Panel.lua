@@ -684,15 +684,14 @@ local function Init()
 	--local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
 	--top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
 
-	-- compatability testing. Currently doesn't work
+	-- Create button and inject into toppanel
+	print("Creating Demographics button and inserting into TopPane.InfoStack")
 	local toppanel_infostack = ContextPtr:LookUpControl("/InGame/TopPanel/InfoStack")
 	button_instance_manager = InstanceManager:new("DemographicsButtonInstance", "ViewDemographics", toppanel_infostack)
-	--button_instance_manager:ResetInstances()
-	print("manager value: ", button_instance_manager)
 	local button_instance = button_instance_manager:GetInstance()
-	print("button instance value: ", button_instance)
 	button_instance.ViewDemographics:RegisterCallback(Mouse.eLClick, OpenPanel)
 	button_instance.ViewDemographics:SetHide(false)
+	print("Insertion Complete")
 end
 
 -- Set proper events and functions
