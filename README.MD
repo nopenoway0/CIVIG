@@ -22,7 +22,7 @@ To access the panel simple click the new **Demographics** button next to the rep
 * Extract the CIVIG folder to the Mods directory - typically at: ```C:\Users\Your Name\Documents\my games\Sid Meier's Civilization VI\Mods```. The result should be ```C:\Users\Your Name\Documents\my games\Sid Meier's Civilization VI\Mods\CIVIG```
 
 ## Compatibility 
-CIVIG is dependant on TopPanel.xml so any modification that messes with this file will most likely cause errors.  Modifying the mod to work with other files should be straight forward as the only difference in the TopPanel.xml is the **ViewDemographics** button.
+Should be compatible with almost all mods.
 
 ## Thank You
 * Gedemon for his extremely helpful Civ 6 Objects and functions [spreadsheet](https://forums.civfanatics.com/threads/lua-objects.601146/).
