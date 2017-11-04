@@ -681,15 +681,18 @@ local function Init()
 	pulldown:CalculateInternals() -- set appropriate size
 
 	context_store:SetHide(true)
-	local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
-	top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
+	--local top_panel_control = ContextPtr:LookUpControl("/InGame/TopPanel/ViewDemographics")
+	--top_panel_control:RegisterCallback(Mouse.eLClick, OpenPanel)
 
 	-- compatability testing. Currently doesn't work
-	--local panel_test = ContextPtr:LookUpControl("/InGame/TopPanel")
-	--button_instance_manager = InstanceManager:new("DemographicsButtonInstance", "demo_button", panel_test.InfoStack)
+	local toppanel_infostack = ContextPtr:LookUpControl("/InGame/TopPanel/InfoStack")
+	button_instance_manager = InstanceManager:new("DemographicsButtonInstance", "ViewDemographics", toppanel_infostack)
 	--button_instance_manager:ResetInstances()
-	--local button_instance = button_instance_manager:GetInstance()
-	--button_instance.Button:SetHide(false)
+	print("manager value: ", button_instance_manager)
+	local button_instance = button_instance_manager:GetInstance()
+	print("button instance value: ", button_instance)
+	button_instance.ViewDemographics:RegisterCallback(Mouse.eLClick, OpenPanel)
+	button_instance.ViewDemographics:SetHide(false)
 end
 
 -- Set proper events and functions
