@@ -534,7 +534,7 @@ local function UpdateGraph()
 	local values = {best = 0, worst = 100000}
 	-- set year and intervals constant for all graphs
 	Controls.ResultsGraph:SetDomain(years.start, years.current)
-	local number_interval = GetInterval(years.start, years.start)
+	local number_interval = GetInterval(years.start, years.current)
 	Controls.ResultsGraph:SetXTickInterval(math.floor(number_interval / 4))
 	Controls.ResultsGraph:SetXNumberInterval(number_interval)
 
