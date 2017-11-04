@@ -10,7 +10,7 @@
   <FrontEndActions>
     <ImportFiles id="ImportUI">
       <File>UI/Demographics Panel.xml</File>
-      <File>UI/TopPanel.xml</File>
+      <!--<File>UI/TopPanel.xml</File>-->
     </ImportFiles>
   </FrontEndActions>
   <InGameActions>
@@ -20,7 +20,7 @@
     <ImportFiles id="ImportFile">
       <File>Scripts/Demographics Panel.lua</File>
       <File>UI/Demographics Panel.xml</File>
-      <File>UI/TopPanel.xml</File>
+      <!--<File>UI/TopPanel.xml</File>-->
     </ImportFiles>
     <UserInterface id="Demographics_UI">
       <Properties>
@@ -36,6 +36,6 @@
     <File>Scripts/Demographics Panel.lua</File>
     <File>Scripts/Load.lua</File>
     <File>UI/Demographics Panel.xml</File>
-    <File>UI/TopPanel.xml</File>
+    <!--<File>UI/TopPanel.xml</File>-->
   </Files>
 </Mod>
