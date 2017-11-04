@@ -5,7 +5,7 @@
 <Context ID="D_BOX">
 
 	<Instance Name="DemographicsButtonInstance">
-    	<GridButton ID="demo_button" Style="RoundedButton" String="test add" Size="140,27"/>
+    	<GridButton ID="ViewDemographics" Style="RoundedButton" String="Demographics" Size="140,27"/>
 	</Instance>
 
 	<Instance Name="GraphLegendInstance" >
