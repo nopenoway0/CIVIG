@@ -299,13 +299,11 @@ end
 ]]
 local function UpdateField(field)
 	local demographics_functions = {pop = GetDemographics, gnp = GetGNPAll, mil = GetMilitaryMight, goods = GetGoodsDemographics, land = GetLandAll, crop = GetCropYieldAll}
-	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
+	local panel_values = {value = 0, rank = 0, worst = 0, best = 0, average = 0}
 	local demographics = nil
 	local truncate_value = 2
 
 	if field == "gnp" or field == "goods" or field == "crops" then truncate_value = 1 end;
-
-
 
 	--print("picking functions according to ", field)
 	if demographics_functions[field] then
@@ -327,8 +325,8 @@ local function UpdateField(field)
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if Players[i]:IsAlive() then
-				if j > tmp then panel_values.rank = panel_values.rank + 1 end
-				if j < panel_values.worst then 
+				if j >= tmp then panel_values.rank = panel_values.rank + 1 end
+				if j <= panel_values.worst then 
 					panel_values.worst = j
 					civ_id.worst = i
 				end
