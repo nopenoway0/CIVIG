@@ -238,10 +238,14 @@ end
 ]]
 local function GetGNP(player)
 	local GNP = 0
+	local tmp;
 	if IsValidPlayer(player) then
 		GNP = player:GetTreasury():GetGoldYield()
 	end
-	return GNP
+	local tmp = math.floor(GNP * 10)
+	tmp = tmp / 10
+	print("tmp: ", tmp)
+	return tmp
 end
 
 --[[ Table of all players Gold yield
@@ -293,10 +297,17 @@ local function UpdateField(field)
 	local demographics_functions = {pop = GetDemographics, gnp = GetGNPAll, mil = GetMilitaryMight, goods = GetGoodsDemographics, land = GetLandAll, crop = GetCropYieldAll}
 	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
 	local demographics = nil
+	local truncate_value = 2
 
-	local function RoundToTwoDec(input) 
+	if field == "gnp" or field == "goods" or field == "crops" then truncate_value = 1 end;
+
+	local function Truncate(input, num) 
 		local floor = math.floor
-		return floor(input * 100) / 100
+		print("input: ", input)
+		print("floor: ", floor(input * 10^num))
+		local tmp = floor(input*10^num) / 10^num
+		print("after round: ", floor((input * 10^num + .5) / 10^num))
+		return floor(input  * 10^num + .5) / 10^num
 	end
 
 	--print("picking functions according to ", field)
@@ -334,11 +345,10 @@ local function UpdateField(field)
 		end
 	end
 
-	local floor = math.floor;
-	panel_values.average = RoundToTwoDec(panel_values.average / count)
-	panel_values.worst = RoundToTwoDec(panel_values.worst)
-	panel_values.best = RoundToTwoDec(panel_values.best)
-	panel_values.value = RoundToTwoDec(demographics[human_id])
+	panel_values.average = Truncate(panel_values.average / count, truncate_value)
+	panel_values.worst = Truncate(panel_values.worst, truncate_value)
+	panel_values.best = Truncate(panel_values.best, truncate_value)
+	panel_values.value = Truncate(demographics[human_id], truncate_value)
 
 	for f, v in pairs(panel_values) do
 		result = GetSuffix(v)
