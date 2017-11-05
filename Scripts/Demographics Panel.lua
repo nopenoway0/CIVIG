@@ -140,7 +140,7 @@ local function GetPop(player)
 			population = population + 1000*c:GetPopulation()^2.8
 		end
 	end
-	return population
+	return math.floor(population)
 end
 
 --[[
@@ -181,9 +181,7 @@ local function GetDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
 		if IsValidPlayer(p) and p:IsAlive() then			
-				local pop = GetPop(p)
-				pop = math.ceil(pop)
-				demographics[p:GetID()] = pop
+				demographics[p:GetID()] =GetPop(p)
 		end
 	end
 	return demographics
@@ -296,6 +294,11 @@ local function UpdateField(field)
 	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
 	local demographics = nil
 
+	local function RoundToTwoDec(input) 
+		local floor = math.floor
+		return floor(input * 100) / 100
+	end
+
 	--print("picking functions according to ", field)
 	if demographics_functions[field] then
 		demographics = demographics_functions[field]()
@@ -331,10 +334,11 @@ local function UpdateField(field)
 		end
 	end
 
-	panel_values.average = math.floor(panel_values.average / count)
-	panel_values.worst = math.floor(panel_values.worst)
-	panel_values.best = math.floor(panel_values.best)
-	panel_values.value = math.floor(demographics[human_id])
+	local floor = math.floor;
+	panel_values.average = RoundToTwoDec(panel_values.average / count)
+	panel_values.worst = RoundToTwoDec(panel_values.worst)
+	panel_values.best = RoundToTwoDec(panel_values.best)
+	panel_values.value = RoundToTwoDec(demographics[human_id])
 
 	for f, v in pairs(panel_values) do
 		result = GetSuffix(v)
@@ -404,9 +408,9 @@ local function GetData(player)
 	local data_fields = {POP = GetPop, MIL = GetMight, GNP = GetGNP, CROP = GetCropYield, LAND = GetLand, GOODS = GetGoods}
 	-- get population
 
-	local floor = math.floor
+	--local floor = math.floor
 	for l, f in pairs(data_fields) do 
-		data[prefix .. l] = floor(f(player))
+		data[prefix .. l] = f(player)
 	end
 
 	return data
