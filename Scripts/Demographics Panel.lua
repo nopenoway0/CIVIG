@@ -244,7 +244,6 @@ local function GetGNP(player)
 	end
 	local tmp = math.floor(GNP * 10)
 	tmp = tmp / 10
-	print("tmp: ", tmp)
 	return tmp
 end
 
@@ -684,7 +683,7 @@ local function Init()
 	for i, l in pairs(labels) do
 		local entry = {}
 		pulldown:BuildEntry("InstanceOne", entry)
-		entry.Button:SetText(l)
+		entry.Button:SetText(Locale.Lookup(l))
 		entry.Button:RegisterCallback(Mouse.eLClick, DetermineFunction(l))
 	end
 	pulldown:CalculateInternals() -- set appropriate size
