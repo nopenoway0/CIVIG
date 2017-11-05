@@ -291,6 +291,10 @@ local function GetSuffix(input)
 	return result
 end
 
+local function Truncate(input, num) 
+	return math.floor(input  * 10^num + .5) / 10^num
+end
+
 --[[ Updates corresponding field in the rankings panel
 ]]
 local function UpdateField(field)
@@ -301,14 +305,7 @@ local function UpdateField(field)
 
 	if field == "gnp" or field == "goods" or field == "crops" then truncate_value = 1 end;
 
-	local function Truncate(input, num) 
-		local floor = math.floor
-		print("input: ", input)
-		print("floor: ", floor(input * 10^num))
-		local tmp = floor(input*10^num) / 10^num
-		print("after round: ", floor((input * 10^num + .5) / 10^num))
-		return floor(input  * 10^num + .5) / 10^num
-	end
+
 
 	--print("picking functions according to ", field)
 	if demographics_functions[field] then
@@ -456,8 +453,8 @@ local function ShowGraphByName(graph_name)
 		end
 	end
 
-	local max = math.ceil(graph_maxes[graph_name] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes[graph_name] * 1.1))
+	local max = Truncate(graph_maxes[graph_name] * 1.1, 0)
+	Controls.ResultsGraph:SetRange(0, max)
 	local number_interval = GetInterval(0, max)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
