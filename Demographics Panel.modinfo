@@ -14,9 +14,12 @@
     </ImportFiles>
   </FrontEndActions>
   <InGameActions>
+      <UpdateText ID="CIVIG_Localization">
+          <File>CIVIG_Localize.sql</File>
+      </UpdateText>
       <AddGameplayScripts id="StartInit">
       <File>Scripts/Load.lua</File>
-    </AddGameplayScripts>
+      </AddGameplayScripts>
     <ImportFiles id="ImportFile">
       <File>Scripts/Demographics Panel.lua</File>
       <File>UI/Demographics Panel.xml</File>
@@ -36,6 +39,8 @@
     <File>Scripts/Demographics Panel.lua</File>
     <File>Scripts/Load.lua</File>
     <File>UI/Demographics Panel.xml</File>
+    <File>CIVIG_Localize.sql</File>
     <!--<File>UI/TopPanel.xml</File>-->
   </Files>
+
 </Mod>
