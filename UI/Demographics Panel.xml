@@ -5,7 +5,7 @@
 <Context ID="D_BOX">
 
 	<Instance Name="DemographicsButtonInstance">
-    	<GridButton ID="ViewDemographics" Style="RoundedButton" String="Demographics" Size="140,27"/>
+    	<GridButton ID="ViewDemographics" Style="RoundedButton" String="LOC_CIVIG_LOCALE_BUTTON_TEXT" Size="140,27"/>
 	</Instance>
 
 	<Instance Name="GraphLegendInstance" >
@@ -37,7 +37,7 @@
 				<Image Texture="Controls_Deco3" Size="27,18" Anchor="R,T" Offset="18,16" Color=" 255,255,255,25"/>
 				</Grid>
 					<Graph ID="ResultsGraph" Size="800,600" Anchor="C,C" Offset="90,25" FontStyle="ButtonText14" Domain="-4000, -3960" Range="0,1000" TickInterval="250,500" NumberInterval="1000,2000" ShowTicks="1,1" ShowGridLines="0,0" ShowNumbers="1,1" ShowAxes="1,1" Background="0,0,0,100">
-						<Label Anchor="C,B" Offset="0,-25" Style="ButtonText20" ID="YearLabel" String="Year" Hidden="0"/>
+						<Label Anchor="C,B" Offset="0,-25" Style="ButtonText20" ID="YearLabel" String="LOC_CIVIG_LOCALE_YEAR_LABEL" Hidden="0"/>
 					</Graph>
 					<Stack ID="graph_selection_stack" StackGrowth="Down" Padding="50" Anchor="R,B" Offset="0, 170" Hidden="1">
 						<GridButton ID="show_pop_graph" Anchor="C,T" Style="RoundedButton" String="Population" Size="110,27"/>
@@ -53,9 +53,9 @@
 			<Grid Size="parent+9,parent+9" Anchor="C,C" Style="WindowFrameTopOnly"/>
 				<Button	ID="Close" Anchor="R,T" Offset="-3,-1"	Size="44,44" Texture="Controls_CloseLarge" />
 				<Grid Anchor="C,T" Offset="0,44"	Size="parent-6,8"	Style="Divider3Grid" />
-				<Label Style="FontFlair20"	String="DEMOGRAPHICS" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
-				<GridButton ID="graphs_button" Anchor="C,T" Style="RoundedButton" Offset="200,10" String="Graphs" Size="140,27"/>
-				<GridButton ID="info_button" Anchor="C,T" Style="RoundedButton" Offset="-200,10" String="Info" Size="140,27"/>
+				<Label Style="FontFlair20"	String="LOC_CIVIG_LOCALE_TITLE" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
+				<GridButton ID="graphs_button" Anchor="C,T" Style="RoundedButton" Offset="200,10" String="LOC_CIVIG_LOCALE_GRAPH" Size="140,27"/>
+				<GridButton ID="info_button" Anchor="C,T" Style="RoundedButton" Offset="-200,10" String="LOC_CIVIG_LOCALE_INFO" Size="140,27"/>
 				<Container Anchor="C,C" ID="InfoPanel" Hidden="1" >
 					<Stack StackGrowth="Down" Anchor="C,C" Offset="0, 55" Padding="0">
 						<Grid Offset="0,0"	Size="parent-6,100" SliceCorner="16,16" SliceSize="1,1" SliceTextureSize="32,32" Texture="Controls_LineItem" Color="200,199,212,255"  />
@@ -67,16 +67,16 @@
 					</Stack>
 					<Stack Anchor="C,C" Offset="0,30" StackGrowth="Right" Padding="80">
 						<Stack StackGrowth="Down" Padding="88">
-							<Label ID="title" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Demographic"/>
-							<Label ID="population" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Population"/>
-							<Label ID="mil" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Soldiers"/>
-							<Label ID="crop_yield" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Crop Yield"/>
-							<Label ID="gnp" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="GNP"/>
-							<Label ID="land" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Land"/>
-							<Label ID="goods" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="Goods"/>
+							<Label ID="title" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_DEMOGRAPHIC_LABEL"/>
+							<Label ID="population" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_POPULATION"/>
+							<Label ID="mil" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_SOLDIERS"/>
+							<Label ID="crop_yield" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_CROP_YIELD"/>
+							<Label ID="gnp" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_GNP"/>
+							<Label ID="land" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_LAND"/>
+							<Label ID="goods" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha" String="LOC_CIVIG_LOCALE_GOODS"/>
 						</Stack>
 						<Stack StackGrowth="Down" Padding="90">
-							<Label String="Rank" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label String="LOC_CIVIG_LOCALE_RANK_LABEL" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 							<Label ID="pop_rank" Style="ReportValueText" Color="Food" String="0"/>
 							<Label ID="mil_rank"  Style="ReportValueText" String="0" />
 							<Label ID="crop_rank" Style="ReportValueText" Color="Food" String="0" />
@@ -87,7 +87,7 @@
 
 
 						<Stack StackGrowth="Down" Padding="90">
-							<Label String="Value" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label String="LOC_CIVIG_LOCALE_VALUE_LABEL" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 							<Label ID="pop_value" Style="ReportValueText" Color="Food" String="0"/>
 							<Label ID="mil_value"  Style="ReportValueText" String="0"/>
 							<Label ID="crop_value"  Style="ReportValueText" Color="Food" String="0"/>
@@ -97,7 +97,7 @@
 						</Stack>
 
 						<Stack StackGrowth="Down" Padding="31">
-							<Label String="Best" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label String="LOC_CIVIG_LOCALE_BEST_LABEL" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 							<Stack StackGrowth="Down" Padding="15">
 								<Image ID="pop_best_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
 								<Label ID="pop_best"  Style="ReportValueText" Color="Food" String="0"/>
@@ -129,7 +129,7 @@
 						</Stack>
 
 						<Stack StackGrowth="Down" Padding="90">
-							<Label String="Average" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label String="LOC_CIVIG_LOCALE_AVERAGE_LABEL" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 							<Label ID="pop_average"  Style="ReportValueText" Color="Food" String="0"/>
 							<Label ID="mil_average"  Style="ReportValueText" String="0" />
 							<Label ID="crop_average" Style="ReportValueText"  Color="Food" String="0" />
@@ -139,7 +139,7 @@
 						</Stack>
 
 						<Stack StackGrowth="Down" Padding="31">
-							<Label String="Worst" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
+							<Label String="LOC_CIVIG_LOCALE_WORST_LABEL" Style="ReportHeaderText" ColorSet="Beige_Black_Alpha"/>
 							<Stack StackGrowth="Down" Padding="15">
 								<Image ID="pop_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
 								<Label ID="pop_worst"  Style="ReportValueText" Color="Food" String="0"/>
