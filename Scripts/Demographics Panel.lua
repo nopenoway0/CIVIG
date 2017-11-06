@@ -326,8 +326,8 @@ local function UpdateField(field)
 	
 	-- get and set population value
 	local tmp = demographics[human_id]
-	panel_values.best = tmp
-	panel_values.worst = tmp
+	panel_values.best = tmp - 1
+	panel_values.worst = tmp + 1
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if Players[i]:IsAlive() then
