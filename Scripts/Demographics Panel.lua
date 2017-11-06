@@ -24,13 +24,17 @@ local button_instance_manager = nil
 local current_graph_field = nil
 local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change pop_graphs to pop_graphs | initialized in init
 local graphs_enabled = {}
-
+local bc_language_dependencies = {english = "BC", spanish = "a. C."}
 -- Convert year to number format. BC converts the number into negative
 local function YearToNumber(input)
-	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
-	if input:find("BC") then
-		output = output * -1
+	local output :number = tonumber(input:gsub('[a-zA-Z.]+', ''):sub(0))
+	print("INPUT NUMBER: ", input)
+	for a,z in pairs(bc_language_dependencies) do
+		if input:find(z) then
+			output = output * -1
+		end
 	end
+	print("OUTPUT NUMBER", output)
 	return output
 end
 
@@ -263,11 +267,11 @@ end
 ]]
 local function GetSuffix(input)
 	local values = {billion = 1000000000, million = 1000000, thousand = 1000}
-	local suffix = {billion = "B", million = "M", thousand = "K"}
+	local suffix = {billion = "LOC_CIVIG_LOCALE_BILLION_SUFFIX", million = "LOC_CIVIG_LOCALE_MILLION_SUFFIX", thousand = "LOC_CIVIG_LOCALE_THOUSAND_SUFFIX"}
 	local result = {}
 
 	local function input_operation(inp, divisor, n)
-		result[1] = suffix[n]
+		result[1] = Locale.Lookup(suffix[n])
 		inp = inp / divisor
 		return inp
 	end
@@ -438,7 +442,7 @@ local function GetInterval(low, high)
 end
 
 local function ShowGraphByName(graph_name)
-	local labels = {pop = "Population", crop = "Crop Yield", land = "Land", gnp = "GNP", goods = "Goods", mil = "Soldiers"}
+	local labels = {pop = "LOC_CIVIG_LOCALE_POPULATION", crop = "LOC_CIVIG_LOCALE_CROP_YIELD", land = "LOC_CIVIG_LOCALE_LAND", gnp = "LOC_CIVIG_LOCALE_GNP", goods = "LOC_CIVIG_LOCALE_GOODS", mil = "LOC_CIVIG_LOCALE_SOLDIERS"}
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then
 			for l, g in pairs(graph_list) do
@@ -455,7 +459,7 @@ local function ShowGraphByName(graph_name)
 	local number_interval = GetInterval(0, max)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText(labels[graph_name])
+	Controls.GraphDataSetPulldown:GetButton():SetText(Locale.Lookup(labels[graph_name]))
 	current_graph_field = graph_name
 end
 
@@ -664,17 +668,17 @@ local function Init()
 
 
 	-- build pulldown
-	local labels = {"Population", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
+	local labels = {"LOC_CIVIG_LOCALE_POPULATION", "LOC_CIVIG_LOCALE_SOLDIERS", "LOC_CIVIG_LOCALE_CROP_YIELD", "LOC_CIVIG_LOCALE_GNP", "LOC_CIVIG_LOCALE_LAND", "LOC_CIVIG_LOCALE_GOODS"} --  create labels for pulldown
 	local pulldown = Controls.GraphDataSetPulldown
 
 	-- return appropriate function to be used in pulldown
 	local function DetermineFunction(input)
-		if input == "Population" then return ShowPopGraph
-		elseif input == "Soldiers" then return ShowMilGraph 
-		elseif input == "Crop Yield" then return ShowYieldGraph 
-		elseif input == "GNP" then return ShowGNPGraph
-		elseif input == "Land" then return ShowLandGraph
-		elseif input == "Goods" then return ShowGoodsGraph 
+		if input == "LOC_CIVIG_LOCALE_POPULATION" then return ShowPopGraph
+		elseif input == "LOC_CIVIG_LOCALE_SOLDIERS" then return ShowMilGraph 
+		elseif input == "LOC_CIVIG_LOCALE_CROP_YIELD" then return ShowYieldGraph 
+		elseif input == "LOC_CIVIG_LOCALE_GNP" then return ShowGNPGraph
+		elseif input == "LOC_CIVIG_LOCALE_LAND" then return ShowLandGraph
+		elseif input == "LOC_CIVIG_LOCALE_GOODS" then return ShowGoodsGraph 
 		else return 0
 		end
 	end
