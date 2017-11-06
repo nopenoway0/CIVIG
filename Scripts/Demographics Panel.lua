@@ -506,7 +506,7 @@ local function UpdateLegend()
 			local instance = graph_legend:GetInstance()
 			if Players[human_id]:GetDiplomacy():HasMet(p:GetID()) or human_id == p:GetID() then
 				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
-				--SetIcon(instance.LegendIcon, p:GetID()) civilizations now use a pin as it is easier to see
+				instance.LegendIcon:SetIcon("Controls_LocationPip")-- civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
 				pop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
