@@ -326,8 +326,8 @@ local function UpdateField(field)
 	
 	-- get and set population value
 	local tmp = demographics[human_id]
-	panel_values.best = tmp
-	panel_values.worst = tmp
+	panel_values.best = tmp - 1
+	panel_values.worst = tmp + 1
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if Players[i]:IsAlive() then
@@ -506,7 +506,7 @@ local function UpdateLegend()
 			local instance = graph_legend:GetInstance()
 			if Players[human_id]:GetDiplomacy():HasMet(p:GetID()) or human_id == p:GetID() then
 				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
-				--SetIcon(instance.LegendIcon, p:GetID()) civilizations now use a pin as it is easier to see
+				instance.LegendIcon:SetIcon("Controls_LocationPip")-- civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
 				pop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
 				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
