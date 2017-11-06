@@ -24,11 +24,18 @@ local button_instance_manager = nil
 local current_graph_field = nil
 local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change pop_graphs to pop_graphs | initialized in init
 local graphs_enabled = {}
-
+local current_language = nil
 -- Convert year to number format. BC converts the number into negative
 local function YearToNumber(input)
-	local output :number = tonumber(input:gsub('[A-Z]+', ''):sub(0))
-	if input:find("BC") then
+	local bc_language_dependencies = {en_US = "BC", es_ES = "a. C.", zh_Hans_CN = '公元前'}--, chinese_sim=""}
+	local output :number = 0
+
+	if current_language == "zh_Hans_CN" then 
+		output = tonumber(input:gsub('公元前', ''):gsub('年', ''):gsub('公元', ''):gsub('年',''):sub(0)) -- remove AD and BC for chinese
+	else
+		output = tonumber(input:gsub('[a-zA-Z.]+', ''):sub(0))
+	end
+	if input:find(bc_language_dependencies[current_language]) then
 		output = output * -1
 	end
 	return output
@@ -140,7 +147,7 @@ local function GetPop(player)
 			population = population + 1000*c:GetPopulation()^2.8
 		end
 	end
-	return population
+	return math.floor(population)
 end
 
 --[[
@@ -181,9 +188,7 @@ local function GetDemographics()
 	local demographics = {}
 	for k, p in pairs(Players) do
 		if IsValidPlayer(p) and p:IsAlive() then			
-				local pop = GetPop(p)
-				pop = math.ceil(pop)
-				demographics[p:GetID()] = pop
+				demographics[p:GetID()] =GetPop(p)
 		end
 	end
 	return demographics
@@ -240,10 +245,13 @@ end
 ]]
 local function GetGNP(player)
 	local GNP = 0
+	local tmp;
 	if IsValidPlayer(player) then
 		GNP = player:GetTreasury():GetGoldYield()
 	end
-	return GNP
+	local tmp = math.floor(GNP * 10)
+	tmp = tmp / 10
+	return tmp
 end
 
 --[[ Table of all players Gold yield
@@ -262,11 +270,11 @@ end
 ]]
 local function GetSuffix(input)
 	local values = {billion = 1000000000, million = 1000000, thousand = 1000}
-	local suffix = {billion = "B", million = "M", thousand = "K"}
+	local suffix = {billion = "LOC_CIVIG_LOCALE_BILLION_SUFFIX", million = "LOC_CIVIG_LOCALE_MILLION_SUFFIX", thousand = "LOC_CIVIG_LOCALE_THOUSAND_SUFFIX"}
 	local result = {}
 
 	local function input_operation(inp, divisor, n)
-		result[1] = suffix[n]
+		result[1] = Locale.Lookup(suffix[n])
 		inp = inp / divisor
 		return inp
 	end
@@ -289,12 +297,19 @@ local function GetSuffix(input)
 	return result
 end
 
+local function Truncate(input, num) 
+	return math.floor(input  * 10^num + .5) / 10^num
+end
+
 --[[ Updates corresponding field in the rankings panel
 ]]
 local function UpdateField(field)
 	local demographics_functions = {pop = GetDemographics, gnp = GetGNPAll, mil = GetMilitaryMight, goods = GetGoodsDemographics, land = GetLandAll, crop = GetCropYieldAll}
-	local panel_values = {value = 0, rank = 1, worst = 0, best = 0, average = 0}
+	local panel_values = {value = 0, rank = 0, worst = 0, best = 0, average = 0}
 	local demographics = nil
+	local truncate_value = 2
+
+	if field == "gnp" or field == "goods" or field == "crops" then truncate_value = 1 end;
 
 	--print("picking functions according to ", field)
 	if demographics_functions[field] then
@@ -316,8 +331,8 @@ local function UpdateField(field)
 	for i, j in pairs(demographics) do
 		if i >= 0 then
 			if Players[i]:IsAlive() then
-				if j > tmp then panel_values.rank = panel_values.rank + 1 end
-				if j < panel_values.worst then 
+				if j >= tmp then panel_values.rank = panel_values.rank + 1 end
+				if j <= panel_values.worst then 
 					panel_values.worst = j
 					civ_id.worst = i
 				end
@@ -331,10 +346,10 @@ local function UpdateField(field)
 		end
 	end
 
-	panel_values.average = math.floor(panel_values.average / count)
-	panel_values.worst = math.floor(panel_values.worst)
-	panel_values.best = math.floor(panel_values.best)
-	panel_values.value = math.floor(demographics[human_id])
+	panel_values.average = Truncate(panel_values.average / count, truncate_value)
+	panel_values.worst = Truncate(panel_values.worst, truncate_value)
+	panel_values.best = Truncate(panel_values.best, truncate_value)
+	panel_values.value = Truncate(demographics[human_id], truncate_value)
 
 	for f, v in pairs(panel_values) do
 		result = GetSuffix(v)
@@ -404,9 +419,9 @@ local function GetData(player)
 	local data_fields = {POP = GetPop, MIL = GetMight, GNP = GetGNP, CROP = GetCropYield, LAND = GetLand, GOODS = GetGoods}
 	-- get population
 
-	local floor = math.floor
+	--local floor = math.floor
 	for l, f in pairs(data_fields) do 
-		data[prefix .. l] = floor(f(player))
+		data[prefix .. l] = f(player)
 	end
 
 	return data
@@ -430,7 +445,7 @@ local function GetInterval(low, high)
 end
 
 local function ShowGraphByName(graph_name)
-	local labels = {pop = "Population", crop = "Crop Yield", land = "Land", gnp = "GNP", goods = "Goods", mil = "Soldiers"}
+	local labels = {pop = "LOC_CIVIG_LOCALE_POPULATION", crop = "LOC_CIVIG_LOCALE_CROP_YIELD", land = "LOC_CIVIG_LOCALE_LAND", gnp = "LOC_CIVIG_LOCALE_GNP", goods = "LOC_CIVIG_LOCALE_GOODS", mil = "LOC_CIVIG_LOCALE_SOLDIERS"}
 	for i, p in pairs(Players) do
 		if IsValidPlayer(p) then
 			for l, g in pairs(graph_list) do
@@ -442,12 +457,12 @@ local function ShowGraphByName(graph_name)
 		end
 	end
 
-	local max = math.ceil(graph_maxes[graph_name] * 1.1)
-	Controls.ResultsGraph:SetRange(0, math.ceil(graph_maxes[graph_name] * 1.1))
+	local max = Truncate(graph_maxes[graph_name] * 1.1, 0)
+	Controls.ResultsGraph:SetRange(0, max)
 	local number_interval = GetInterval(0, max)
 	Controls.ResultsGraph:SetYNumberInterval(number_interval)
 	Controls.ResultsGraph:SetYTickInterval(number_interval / 4)
-	Controls.GraphDataSetPulldown:GetButton():SetText(labels[graph_name])
+	Controls.GraphDataSetPulldown:GetButton():SetText(Locale.Lookup(labels[graph_name]))
 	current_graph_field = graph_name
 end
 
@@ -502,7 +517,7 @@ local function UpdateLegend()
 				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
 			else
 				SetIcon(instance.LegendIcon, "none")
-				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
+				instance.LegendName:SetText(Locale.Lookup("LOC_CIVIG_LOCALE_UNDISCOVERED")) -- set to undisovered if the civ hasn't met the player
 			end
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
 				if bCheck then
@@ -637,6 +652,8 @@ local function Init()
 		if IsValidPlayer(j) then graphs_enabled[j:GetID()] = true end
 	end
 
+	current_language = Locale.GetCurrentLanguage().Type
+
 	graph_types = {"pop", "mil", "gnp", "crop", "land", "goods"} -- set global graph names/types
 
 	start_year = GameConfiguration.GetStartYear()
@@ -656,17 +673,17 @@ local function Init()
 
 
 	-- build pulldown
-	local labels = {"Population", "Soldiers", "Crop Yield", "GNP", "Land", "Goods"} --  create labels for pulldown
+	local labels = {"LOC_CIVIG_LOCALE_POPULATION", "LOC_CIVIG_LOCALE_SOLDIERS", "LOC_CIVIG_LOCALE_CROP_YIELD", "LOC_CIVIG_LOCALE_GNP", "LOC_CIVIG_LOCALE_LAND", "LOC_CIVIG_LOCALE_GOODS"} --  create labels for pulldown
 	local pulldown = Controls.GraphDataSetPulldown
 
 	-- return appropriate function to be used in pulldown
 	local function DetermineFunction(input)
-		if input == "Population" then return ShowPopGraph
-		elseif input == "Soldiers" then return ShowMilGraph 
-		elseif input == "Crop Yield" then return ShowYieldGraph 
-		elseif input == "GNP" then return ShowGNPGraph
-		elseif input == "Land" then return ShowLandGraph
-		elseif input == "Goods" then return ShowGoodsGraph 
+		if input == "LOC_CIVIG_LOCALE_POPULATION" then return ShowPopGraph
+		elseif input == "LOC_CIVIG_LOCALE_SOLDIERS" then return ShowMilGraph 
+		elseif input == "LOC_CIVIG_LOCALE_CROP_YIELD" then return ShowYieldGraph 
+		elseif input == "LOC_CIVIG_LOCALE_GNP" then return ShowGNPGraph
+		elseif input == "LOC_CIVIG_LOCALE_LAND" then return ShowLandGraph
+		elseif input == "LOC_CIVIG_LOCALE_GOODS" then return ShowGoodsGraph 
 		else return 0
 		end
 	end
@@ -675,7 +692,7 @@ local function Init()
 	for i, l in pairs(labels) do
 		local entry = {}
 		pulldown:BuildEntry("InstanceOne", entry)
-		entry.Button:SetText(l)
+		entry.Button:SetText(Locale.Lookup(l))
 		entry.Button:RegisterCallback(Mouse.eLClick, DetermineFunction(l))
 	end
 	pulldown:CalculateInternals() -- set appropriate size

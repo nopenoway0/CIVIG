@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="508fe56f-9ac2-4212-b673-b55f427c472e" version="1.8.3">
+<Mod id="508fe56f-9ac2-4212-b673-b55f427c472e" version="1.9">
   <Properties>
     <Name>CIVIG</Name>
     <Description>Brings back the Civilization 5 demographics panel to Civilizations 6</Description>
@@ -14,9 +14,12 @@
     </ImportFiles>
   </FrontEndActions>
   <InGameActions>
+      <UpdateText ID="CIVIG_Localization">
+          <File>CIVIG_Localize.sql</File>
+      </UpdateText>
       <AddGameplayScripts id="StartInit">
       <File>Scripts/Load.lua</File>
-    </AddGameplayScripts>
+      </AddGameplayScripts>
     <ImportFiles id="ImportFile">
       <File>Scripts/Demographics Panel.lua</File>
       <File>UI/Demographics Panel.xml</File>
@@ -36,6 +39,8 @@
     <File>Scripts/Demographics Panel.lua</File>
     <File>Scripts/Load.lua</File>
     <File>UI/Demographics Panel.xml</File>
+    <File>CIVIG_Localize.sql</File>
     <!--<File>UI/TopPanel.xml</File>-->
   </Files>
+
 </Mod>
