@@ -24,17 +24,20 @@ local button_instance_manager = nil
 local current_graph_field = nil
 local graph_types = nil -- the relevant graphs follow the following format: type_graph TODO: change pop_graphs to pop_graphs | initialized in init
 local graphs_enabled = {}
-local bc_language_dependencies = {english = "BC", spanish = "a. C."}
+local current_language = nil
 -- Convert year to number format. BC converts the number into negative
 local function YearToNumber(input)
-	local output :number = tonumber(input:gsub('[a-zA-Z.]+', ''):sub(0))
-	print("INPUT NUMBER: ", input)
-	for a,z in pairs(bc_language_dependencies) do
-		if input:find(z) then
-			output = output * -1
-		end
+	local bc_language_dependencies = {en_US = "BC", es_ES = "a. C.", zh_Hans_CN = '公元前'}--, chinese_sim=""}
+	local output :number = 0
+
+	if current_language == "zh_Hans_CN" then 
+		output = tonumber(input:gsub('公元前', ''):gsub('年', ''):gsub('公元', ''):gsub('年',''):sub(0)) -- remove AD and BC for chinese
+	else
+		output = tonumber(input:gsub('[a-zA-Z.]+', ''):sub(0))
 	end
-	print("OUTPUT NUMBER", output)
+	if input:find(bc_language_dependencies[current_language]) then
+		output = output * -1
+	end
 	return output
 end
 
@@ -514,7 +517,7 @@ local function UpdateLegend()
 				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
 			else
 				SetIcon(instance.LegendIcon, "none")
-				instance.LegendName:SetText("Undiscovered") -- set to undisovered if the civ hasn't met the player
+				instance.LegendName:SetText(Locale.Lookup("LOC_CIVIG_LOCALE_UNDISCOVERED")) -- set to undisovered if the civ hasn't met the player
 			end
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
 				if bCheck then
@@ -648,6 +651,8 @@ local function Init()
 		end
 		if IsValidPlayer(j) then graphs_enabled[j:GetID()] = true end
 	end
+
+	current_language = Locale.GetCurrentLanguage().Type
 
 	graph_types = {"pop", "mil", "gnp", "crop", "land", "goods"} -- set global graph names/types
 
