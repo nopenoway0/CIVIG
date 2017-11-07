@@ -27,7 +27,7 @@ local graphs_enabled = {}
 local current_language = nil
 -- Convert year to number format. BC converts the number into negative
 local function YearToNumber(input)
-	local bc_language_dependencies = {en_US = "BC", es_ES = "a. C.", zh_Hans_CN = '公元前', ja_JP = '紀元前'} -- Set BC suffixes for each language
+	local bc_language_dependencies = {en_US = "BC", es_ES = "a. C.", zh_Hans_CN = '公元前', ja_JP = '紀元前', ru_RU = 'до н. э.'} -- Set BC suffixes for each language
 	local output :number = 0
 	print(input)
 	print("Current Language: ", current_language)
@@ -35,10 +35,13 @@ local function YearToNumber(input)
 		output = tonumber(input:gsub('公元前', ''):gsub('年', ''):gsub('公元', ''):gsub('年',''):sub(0)) -- remove AD and BC for chinese
 	elseif current_language == "ja_JP" then
 		output = tonumber(input:gsub('西暦', ''):gsub('年', ''):gsub('紀元前', ''):gsub('年', ''):sub(0)) -- remove AD and BC equivilents for Japanese
+	elseif current_language == "ru_RU" then
+		output = tonumber(input:gsub('до н. э.', ''):gsub('н. э.', ''):sub(0)) -- remove AD and BC equivilents for Japanese
 	else
 		output = tonumber(input:gsub('[a-zA-Z.]+', ''):sub(0))
 	end
 	if input:find(bc_language_dependencies[current_language]) then
+		print("In BC era")
 		output = output * -1
 	end
 	return output
