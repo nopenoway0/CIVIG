@@ -500,42 +500,72 @@ end
 --[[ creates/or updates the graph legends
 ]]
 local function UpdateLegend()
+
+		function ColorDistance(color1, color2)
+			local distance = nil;
+			local pow = math.pow;
+			if(distance == nil) then
+
+				local c1:table, c2:table;
+
+				if color1.Color then
+					c1 = UIManager:ParseColorString(color1.Color);
+				else
+					c1 = { color1.Red * 255, color1.Green * 255, color1.Blue * 255 };
+				end
+
+				if color2.Color then
+					c2 = UIManager:ParseColorString(color2.Color);
+				else
+					c2 = { color2.Red * 255, color2.Green * 255, color2.Blue * 255 };
+				end
+
+				local r2 = pow(c1[1] - c2[1], 2);
+				local g2 = pow(c1[2] - c2[2], 2);
+				local b2 = pow(c1[3] - c2[3], 2);	
+						
+				distance = r2 + g2 + b2;
+			end
+					
+			return distance;
+		end
+	local white = {Red = 1, Blue = 1, Green = 1}
+	local black = {Red = 0, Blue = 0, Green = 0}
 	graph_legend:ResetInstances()
 	for x, p in pairs(Players) do 
 		if IsValidPlayer(p) then
 			local instance = graph_legend:GetInstance()
+
 			if Players[human_id]:GetDiplomacy():HasMet(p:GetID()) or human_id == p:GetID() then
 				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
+				local color_name = "PrimaryColor"
 				instance.LegendIcon:SetIcon("Controls_LocationPip")-- civilizations now use a pin as it is easier to see
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
-				pop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				mil_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				gnp_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				goods_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				crop_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				land_graphs[p:GetID()]:SetColor(UI.GetColorValue(color.PrimaryColor))
-				instance.LegendIcon:SetColor(UI.GetColorValue(color.PrimaryColor))
+
+				--local color = GameInfo.Colors[GameInfo.PlayerColors[PlayerConfigurations[0]:GetColor()].PrimaryColor] print(color.Color)
+				-- make print for each color primary
+				if ColorDistance(GameInfo.Colors[color.PrimaryColor], white) < 100 or ColorDistance(GameInfo.Colors[color.PrimaryColor], black) < 100 then
+					color_name = "SecondaryColor"
+					print("below threshold")
+				end
+				-- check if close to background color: 0,0,0,100, also check if background color is close to white
+				for l, g in pairs(graph_list) do
+					g[p:GetID()]:SetColor(UI.GetColorValue(color[color_name]))
+				end
+				instance.LegendIcon:SetColor(UI.GetColorValue(color[color_name]))
 			else
 				SetIcon(instance.LegendIcon, "none")
 				instance.LegendName:SetText(Locale.Lookup("LOC_CIVIG_LOCALE_UNDISCOVERED")) -- set to undisovered if the civ hasn't met the player
 			end
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
 				if bCheck then
-					if  current_graph_field == "mil" then mil_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "pop" then pop_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "crop" then crop_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "land" then land_graphs[p:GetID()]:SetVisible(bCheck) 
-					elseif current_graph_field == "gnp" then gnp_graphs[p:GetID()]:SetVisible(bCheck) 
- 					elseif current_graph_field == "goods" then goods_graphs[p:GetID()]:SetVisible(bCheck) end
+					graph_list[current_graph_field][p:GetID()]:SetVisible(bCheck)
  					graphs_enabled[p:GetID()] = true
 				else
 					graphs_enabled[p:GetID()] = false
-					mil_graphs[p:GetID()]:SetVisible(false)
-					pop_graphs[p:GetID()]:SetVisible(false)
-					crop_graphs[p:GetID()]:SetVisible(false)
-					land_graphs[p:GetID()]:SetVisible(false)
-					gnp_graphs[p:GetID()]:SetVisible(false)
-					goods_graphs[p:GetID()]:SetVisible(false)
+					for l, g in pairs(graph_list) do 
+						g[p:GetID()]:SetVisible(false)
+					end
 				end
 			end)
 		end
@@ -561,14 +591,12 @@ local function UpdateGraph()
 
 	for i, p in pairs(Players)	do
 		if IsValidPlayer(p) then
-
 			for i, l in pairs(graph_types) do
 				if graph_list[l][p:GetID()] then graph_list[l][p:GetID()]:Clear() end
 				graph_list[l][p:GetID()] = Controls.ResultsGraph:CreateDataSet(tostring(p:GetID()) .. "_population")
 				graph_list[l][p:GetID()]:SetVisible(false)
 				graph_list[l][p:GetID()]:SetWidth(2.0)
 			end
-
 		end
 	end
 	

@@ -6,6 +6,7 @@
     <CustomProperties xmlns="http://schemas.microsoft.com/developer/msbuild/2003"></CustomProperties>
     <Teaser>Civ V Demographics Panel in Civ 6</Teaser>
     <Authors>Benji</Authors>
+    <AffectsSavedGames>0</AffectsSavedGames>
   </Properties>
   <FrontEndActions>
     <ImportFiles id="ImportUI">
