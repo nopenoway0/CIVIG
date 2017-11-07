@@ -544,8 +544,9 @@ local function UpdateLegend()
 
 				--local color = GameInfo.Colors[GameInfo.PlayerColors[PlayerConfigurations[0]:GetColor()].PrimaryColor] print(color.Color)
 				-- make print for each color primary
-				if ColorDistance(GameInfo.Colors[color.PrimaryColor], white) < 100 or ColorDistance(GameInfo.Colors[color.PrimaryColor], white) < 100 then
+				if ColorDistance(GameInfo.Colors[color.PrimaryColor], white) < 100 or ColorDistance(GameInfo.Colors[color.PrimaryColor], black) < 100 then
 					color_name = "SecondaryColor"
+					print("below threshold")
 				end
 				-- check if close to background color: 0,0,0,100, also check if background color is close to white
 				for l, g in pairs(graph_list) do
