@@ -50,6 +50,16 @@ local function YearToNumber(input)
 	return output
 end
 
+local function GetPlayerPrefix(player)
+	local prefix = ""
+	if GameConfiguration:IsAnyMultiplayer() and player:IsHuman() then
+		-- hotseat or multiplayer add prefix
+		prefix = PlayerConfigurations[player:GetID()]:GetPlayerName() .. "_"		
+	end
+	return prefix
+end
+
+
 --[[Determines of the player is valid. A player is valid IF that player exists
 	and that player is a major civ. Civ states are not considered valid players in this mode
 ]]
@@ -70,7 +80,7 @@ local function LoadData(player)
 	local complete_data = {}
 	if sequence == nil then return -1 end
 	sequence:gsub( "%-?%d+", function(i) table.insert(years, i) end)
-	local prefix = tostring(player:GetID()) .. "_"
+	local prefix = tostring(player:GetID()) .. "_" .. GetPlayerPrefix(player)
 	for x,z in pairs(years) do
 		data = {}
 		-- store year into table and then each corresponding field with proper suffix according to
@@ -105,10 +115,12 @@ function SetIcon(control, id)
 	local icon = "ICON_"
 	if type(id) == "number" then
 		local cTop_player = PlayerConfigurations[id]
-		local icon = icon .. cTop_player:GetCivilizationTypeName()
+		icon = icon .. cTop_player:GetCivilizationTypeName()
 		control:SetIcon(icon)
-	else
+	elseif id == "none" then
 		icon = icon .. "CIVILIZATION_UNKNOWN"
+	else
+		icon = icon .. id
 	end
 	control:SetIcon(icon)
 end
@@ -423,7 +435,7 @@ end
 local function GetData(player)
 	if IsValidPlayer(player) == false then return -1 end
 	local data = {}
-	local prefix = tostring(player:GetID()) .. "_"
+	local prefix = tostring(player:GetID()) .. "_" .. GetPlayerPrefix(player)
 	prefix = prefix .. tostring(YearToNumber(Calendar.MakeYearStr(Game.GetCurrentGameTurn()))) .. "_"
 	local data_fields = {POP = GetPop, MIL = GetMight, GNP = GetGNP, CROP = GetCropYield, LAND = GetLand, GOODS = GetGoods}
 	-- get population
@@ -506,6 +518,14 @@ local function ShowGoodsGraph()
 	ShowGraphByName("goods")
 end
 
+local function UpdateHumanID()
+	for k, p in pairs(Players) do
+		if p:IsTurnActive() and p:IsHuman() then
+			human_id = p:GetID()
+		end
+	end
+end
+
 --[[ creates/or updates the graph legends
 ]]
 local function UpdateLegend()
@@ -541,21 +561,22 @@ local function UpdateLegend()
 	local white = {Red = 1, Blue = 1, Green = 1}
 	local black = {Red = 0, Blue = 0, Green = 0}
 	graph_legend:ResetInstances()
+
 	for x, p in pairs(Players) do 
 		if IsValidPlayer(p) then
 			local instance = graph_legend:GetInstance()
-
 			if Players[human_id]:GetDiplomacy():HasMet(p:GetID()) or human_id == p:GetID() then
 				local color = GameInfo.PlayerColors[PlayerConfigurations[p:GetID()]:GetColor()]
 				local color_name = "PrimaryColor"
-				instance.LegendIcon:SetIcon("Controls_LocationPip")-- civilizations now use a pin as it is easier to see
+				--instance.LegendIcon:SetIcon("Controls_LocationPip")-- civilizations now use a pin as it is easier to see
+				--SetIcon(instance.LegendIcon, "Controls_LocationPip")
+				SetIcon(instance.LegendIcon, p:GetID())
 				instance.LegendName:SetText(Locale.Lookup(GameInfo.Leaders[PlayerConfigurations[p:GetID()]:GetLeaderTypeName()].Name))
 
 				--local color = GameInfo.Colors[GameInfo.PlayerColors[PlayerConfigurations[0]:GetColor()].PrimaryColor] print(color.Color)
 				-- make print for each color primary
 				if ColorDistance(GameInfo.Colors[color.PrimaryColor], white) < 100 or ColorDistance(GameInfo.Colors[color.PrimaryColor], black) < 100 then
 					color_name = "SecondaryColor"
-					print("below threshold")
 				end
 				-- check if close to background color: 0,0,0,100, also check if background color is close to white
 				for l, g in pairs(graph_list) do
@@ -564,6 +585,7 @@ local function UpdateLegend()
 				instance.LegendIcon:SetColor(UI.GetColorValue(color[color_name]))
 			else
 				SetIcon(instance.LegendIcon, "none")
+				instance.LegendIcon:SetColor(1,1,1,1) -- set to white
 				instance.LegendName:SetText(Locale.Lookup("LOC_CIVIG_LOCALE_UNDISCOVERED")) -- set to undisovered if the civ hasn't met the player
 			end
 			instance.ShowHide:RegisterCheckHandler( function(bCheck)
@@ -643,13 +665,14 @@ end
 
 function OpenPanel()
 	-- add sound effects here
+	UpdateHumanID();
 	context_store:SetHide(false)
 	ShowInfoPanel()
 	local start_time = os.time()
 	UpdatePanel()
 	UpdateGraph() -- just for tests, move to button
 	local end_time = os.time()
-	print("generation of panel and graphs: ", (end_time -start_time) / 1000.0, "s")
+	print("generation of panel and graphs: ", (end_time - start_time) / 1000.0, "s")
 end
 
 -- Store data for all players
@@ -673,14 +696,9 @@ local function StoreAllData()
 	print("store time: ", (end_time - start_time) / 1000.0, "s")
 end
 
--- add cache so it's not loading all data everytime
-local function LoadAllData()
-
-end
-
 -- change in case of multiplayers or hotseat
 -- Intialize necessary variables and UI
-local function Init()
+function Init()
 	print("load completed start initizialization")
 	for i, j in pairs(Players) do
 		if j then
