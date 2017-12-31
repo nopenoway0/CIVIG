@@ -11,7 +11,7 @@
 	<Instance Name="GraphLegendInstance" >
 		<Box Anchor="L,T" Size="168,30" Offset="14,0" Color="0,0,0,0" ID="GraphLegend">
       		<CheckBox ID="ShowHide" Anchor="R,C" Offset="7,0" Style="MainCheckBox" IsChecked="1"  ConsumeMouse="1"  />
-      		<Image Anchor="L,C" Offset="4,0" Size="16,16" Texture="Controls_ItemContainer" Color="255,255,255,128" />
+      		<Image Anchor="L,C" Offset="10,-3" Size="16,16" Texture="Controls_ItemContainer" Color="255,255,255,128" />
 			<Image Anchor="L,C" Offset="11,0" Size="14,19" Texture="Controls_LocationPip"  ID="LegendIcon"/>
 
 	      	<Grid  Texture="Controls_SubContainer4" Offset="0,0" Size="parent,parent" Anchor="L,T" SliceCorner="9,9" SliceSize="0,0" Color=" 0,0,0,45">
@@ -168,6 +168,7 @@
 								<Image ID="goods_worst_icon" Anchor="C,C" Size="44,44" Texture="CivSymbols44"/>
 								<Label ID="goods_worst"  Style="ReportValueText" String="0"/>
 							</Stack>
+
 						</Stack>		
 					</Stack>
 				</Container>
