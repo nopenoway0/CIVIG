@@ -30,7 +30,6 @@
 					<ScrollBar Style="Slider_Light" Anchor="L,C" Offset="2,0"/>
 					<Stack Anchor="L,T" Offset="10,105" StackGrowth="Bottom" Padding="2" ID="GraphLegendStack"/>
 				</ScrollPanel>
-
 				<Grid  Anchor="C,C" Texture="Controls_SubContainer3" Offset="0,20" Size="parent-10,parent-50"  SliceCorner="20,20" SliceSize="0,0" Color="0,0,0,100">
 				<Grid  Texture="Controls_SubContainerFill" Size="parent,parent"  SliceCorner="11,11" SliceSize="0,0" Color="0,0,0,50"/>
 				<Image Texture="Controls_Deco3" Size="27,18" Anchor="L,T" Offset="18,16" Color=" 255,255,255,25"/>
@@ -55,6 +54,7 @@
 				<Grid Anchor="C,T" Offset="0,44"	Size="parent-6,8"	Style="Divider3Grid" />
 				<Label Style="FontFlair20"	String="LOC_CIVIG_LOCALE_TITLE" FontStyle="Glow" Color0="133,205,235,255" Color1="203,215,225,100" Color2="254,254,254,255" SmallCaps="28" SmallCapsType="EveryWord" Anchor="C,T" Offset="0,16"/>
 				<GridButton ID="graphs_button" Anchor="C,T" Style="RoundedButton" Offset="200,10" String="LOC_CIVIG_LOCALE_GRAPH" Size="140,27"/>
+				<GridButton ID="smooth_button" Anchor="C,T" Style="RoundedButton" Offset="200,53" String="LOC_CIVIG_SMOOTH_OPTION" Size="100,27" Hidden="1"/>
 				<GridButton ID="info_button" Anchor="C,T" Style="RoundedButton" Offset="-200,10" String="LOC_CIVIG_LOCALE_INFO" Size="140,27"/>
 				<Container Anchor="C,C" ID="InfoPanel" Hidden="1" >
 					<Stack StackGrowth="Down" Anchor="C,C" Offset="0, 55" Padding="0">
