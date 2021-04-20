@@ -23,7 +23,7 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('en_US', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('en_US', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', 'K');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('en_US', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', 'M');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('en_US', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', 'B');
-
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('en_US', 'LOC_CIVIG_SMOOTH_OPTION', 'Smooth');
 
 ------------------------------------------------Spanish--------------------------------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('es_ES', 'LOC_CIVIG_LOCALE_TITLE', 'DEMOGRAFÍA');
@@ -50,6 +50,7 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('es_ES', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('es_ES', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', ' Mil');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('es_ES', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', ' Millón');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('es_ES', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', ' Mil millones');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('es_ES', 'LOC_CIVIG_SMOOTH_OPTION', 'liso');
 
 ----------------------------------------Simplified Chinese----------------------------------------------------------------
 
@@ -74,6 +75,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('zh_Hans_CN', 'LOC_CIVIG
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('zh_Hans_CN', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', '千');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('zh_Hans_CN', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', '百万');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('zh_Hans_CN', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', '十亿');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('zh_Hans_CN', 'LOC_CIVIG_SMOOTH_OPTION', '光滑的');
+
 -----------------------------------------Japanese------------------------------------------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_LOCALE_TITLE', 'デモグラフィックス');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_LOCALE_BUTTON_TEXT', '人口統計');
@@ -96,6 +99,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', '千');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', '百万');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', '億');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ja_JP', 'LOC_CIVIG_SMOOTH_OPTION', 'スムーズ');
+
 -----------------------------------------Russian works but text format is messed up-----------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_LOCALE_TITLE', 'ДЕМОГРАФИЯ');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_LOCALE_BUTTON_TEXT', 'Демография');
@@ -118,6 +123,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', ' тысяча');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', ' миллиона');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', ' миллиард');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ru_RU', 'LOC_CIVIG_SMOOTH_OPTION', 'гладкий');
+
 -----------------------------------------German text messed up------------------------------------------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_LOCALE_TITLE', 'DEMOGRAPHIE');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_LOCALE_BUTTON_TEXT', 'Demografische');
@@ -140,6 +147,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', ' Taus.');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', ' Million');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', ' Milliarde');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('de_DE', 'LOC_CIVIG_SMOOTH_OPTION', 'glatt');
+
 -----------------------------------------French pretty much good------------------------------------------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_LOCALE_TITLE', 'DÉMOGRAPHIE');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_LOCALE_BUTTON_TEXT', 'Démographie');
@@ -162,6 +171,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', ' Mille');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', ' Million');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', ' Milliard');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('fr_FR', 'LOC_CIVIG_SMOOTH_OPTION', 'lisse');
+
 -----------------------------------------Italian NEEDS TEST------------------------------------------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_LOCALE_TITLE', 'DEMOGRAFIA');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_LOCALE_BUTTON_TEXT', 'Demografia');
@@ -184,6 +195,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', ' Mille');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', ' Milione');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', ' Miliardo');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('it_IT', 'LOC_CIVIG_SMOOTH_OPTION', 'liscio');
+
 -----------------------------------------Korean NEEDS TEST------------------------------------------------------------------------
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_LOCALE_TITLE', '인구 통계학');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_LOCALE_BUTTON_TEXT', '인구 통계');
@@ -206,6 +219,8 @@ INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_LOCA
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_LOCALE_THOUSAND_SUFFIX', '천');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_LOCALE_MILLION_SUFFIX', '백만');
 INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_LOCALE_BILLION_SUFFIX', '십억');
+INSERT INTO LocalizedText (Language, Tag, Text) VALUES ('ko_KR', 'LOC_CIVIG_SMOOTH_OPTION', '부드러운');
+
 -----------------------------------------Polish NEEDS TEST------------------------------------------------------------------------
 -----------------------------------------Portuguese NEEDS TEST------------------------------------------------------------------------
 -----------------------------------------Traditional Chinese NEEDS TEST------------------------------------------------------------------------
